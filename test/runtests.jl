@@ -5,8 +5,7 @@ using Test
     # Write your tests here.
 
     @testset "XML parse" begin
-        println(readdir("deps"))
-        @test !isempty(read("./deps/ucd.all.flat.xml"))
+        @test !isempty(read("../deps/ucd.all.flat.xml"))
     end
 
     char_0x0000 = UCDxml.UCDRepertoireNode(
