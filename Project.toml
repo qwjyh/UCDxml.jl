@@ -3,6 +3,9 @@ uuid = "86c0f8d3-bb61-493e-97e8-0b7be5b3ef6f"
 authors = ["qwjyh <urataw421@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+EzXML = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
+
 [compat]
 julia = "1"
 
