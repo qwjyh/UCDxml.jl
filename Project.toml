@@ -1,0 +1,13 @@
+name = "UCDxml"
+uuid = "86c0f8d3-bb61-493e-97e8-0b7be5b3ef6f"
+authors = ["qwjyh <urataw421@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
