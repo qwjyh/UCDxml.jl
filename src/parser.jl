@@ -38,6 +38,22 @@ function Base.:(==)(a::T, b::T) where T<:RangeCodePoint
     a.first == b.first && a.last == b.last
 end
 
+"""
+    format(cp::SingleCodePoint)::String
+
+Return codepoint in `String`.
+If \$cp \\leq \\mathrm{FFFF}\$, digit is 4, else, digit is 6.
+"""
+function format(cp::SingleCodePoint)::String
+    val = cp.cp # UTint32
+    if val <= 0xFFFF
+        string(val, base=16, pad=4)
+    else
+        string(val, base=16, pad=6)
+    end
+end
+
+
 ###############################################################
 # code point type
 
@@ -85,8 +101,27 @@ function get_age(node::EzXML.Node)::String
 end
 
 # name
-function get_name(node::EzXML.Node)::String
-    return node["na"]
+"replace # with actual number when cp is single code point."
+function get_name(node::EzXML.Node, cp::T)::String where T<:CodePointsSet
+    raw_na = node["na"]
+    if isnothing(findfirst('#', raw_na))
+        return raw_na
+    else
+        if typeof(cp) == SingleCodePoint
+            cp_str = format(cp)
+            id = x -> x
+            return split(raw_na, '#') |>
+                x -> zip(x, fill(cp_str, (length(x) - 1, ))) |>
+                Iterators.flatten |>
+                x -> mapreduce(id, *, x)
+        else
+            return raw_na
+        end
+    end
+end
+
+function get_na1(node::EzXML.Node)::String
+    return node["na1"]
 end
 
 # name alias
@@ -557,7 +592,7 @@ struct UCDRepertoireNode
     cp::CodePointsSet
     age::String
     na::String
-    # na1::String
+    na1::String
     name_alias::Vector{NameAlias}
     blk::String
     gc::GeneralCategory
@@ -587,7 +622,8 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     type = get_codepointtype(node)
     cp = get_codepoint(node)
     age = get_age(node)
-    na = get_name(node)
+    na = get_name(node, cp)
+    na1 = get_na1(node)
     name_alias = get_namealiases(node)
     blk = get_block(node)
     gc = get_generalcategory(node)
@@ -597,6 +633,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
         cp,
         age,
         na,
+        na1,
         name_alias,
         blk,
         gc,
