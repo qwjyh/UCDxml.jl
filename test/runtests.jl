@@ -11,6 +11,7 @@ using Test
     char_0x0000 = UCDxml.UCDRepertoireNode(
         UCDxml.char,
         UCDxml.SingleCodePoint(UInt32(0x0)),
+        "1.1",
         "",
         [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
         "ASCII",
@@ -26,6 +27,7 @@ using Test
         @test UCDxml.UCDRepertoireNode(
             UCDxml.char,
             UCDxml.SingleCodePoint(UInt32(0x0)),
+            "1.1",
             "",
             [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
             "ASCII",
@@ -37,6 +39,7 @@ using Test
         @test ucd_repertoire[1] == UCDxml.UCDRepertoireNode(
             UCDxml.char,
             UCDxml.SingleCodePoint(UInt32(0x0)),
+            "1.1",
             "",
             [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
             "ASCII",

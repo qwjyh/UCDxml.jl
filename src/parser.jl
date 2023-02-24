@@ -79,6 +79,11 @@ end
 # properties
 abstract type Property end
 
+# age
+function get_age(node::EzXML.Node)::String
+    return node["age"]
+end
+
 # name
 function get_name(node::EzXML.Node)::String
     return node["na"]
@@ -125,6 +130,7 @@ function get_block(node::EzXML.Node)::String
     end
 end
 
+# general category
 """
 module for GeneralCategories.
 To separate namespace for General Category enum.
@@ -549,7 +555,7 @@ UAX#42
 struct UCDRepertoireNode
     type::CodePointType
     cp::CodePointsSet
-    # age::String
+    age::String
     na::String
     # na1::String
     name_alias::Vector{NameAlias}
@@ -580,6 +586,7 @@ end
 function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     type = get_codepointtype(node)
     cp = get_codepoint(node)
+    age = get_age(node)
     na = get_name(node)
     name_alias = get_namealiases(node)
     blk = get_block(node)
@@ -588,6 +595,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     return UCDRepertoireNode(
         type,
         cp,
+        age,
         na,
         name_alias,
         blk,
