@@ -3,6 +3,11 @@ using Test
 
 @testset "UCDxml.jl" begin
     # Write your tests here.
+
+    @testset "XML parse" begin
+        @test !isempty(read("../deps/ucd.all.flat.xml"))
+    end
+
     char_0x0000 = UCDxml.UCDRepertoireNode(
         UCDxml.char,
         UCDxml.SingleCodePoint(UInt32(0x0)),
