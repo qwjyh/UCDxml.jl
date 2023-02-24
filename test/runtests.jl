@@ -12,7 +12,9 @@ using Test
         UCDxml.char,
         UCDxml.SingleCodePoint(UInt32(0x0)),
         "",
-        [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")]
+        [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
+        "ASCII",
+        UCDxml.GeneralCategories.Cc,
     )
 
     @testset "Type and func test" begin
@@ -25,7 +27,9 @@ using Test
             UCDxml.char,
             UCDxml.SingleCodePoint(UInt32(0x0)),
             "",
-            [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")]
+            [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
+            "ASCII",
+            UCDxml.GeneralCategories.Cc,
         ) == char_0x0000
     end
 
@@ -34,7 +38,9 @@ using Test
             UCDxml.char,
             UCDxml.SingleCodePoint(UInt32(0x0)),
             "",
-            [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")]
+            [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
+            "ASCII",
+            UCDxml.GeneralCategories.Cc,
         )
     end
 end

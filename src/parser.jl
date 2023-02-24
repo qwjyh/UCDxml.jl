@@ -88,39 +88,99 @@ function get_namealiases(node::EzXML.Node)::Vector{NameAlias}
     return aliases
 end
 
+# Block
+function get_block(node::EzXML.Node)::String
+    try
+        node["blk"]
+    catch
+        ""
+    end
+end
 
-# @enum GeneralCategory begin
-#     Lu # Letter, uppercase
-#     Ll # Letter, lowercase
-#     Lt # Letter, titlecase
-#     Lm # Letter, modifier
-#     Lo # Letter, other
-#     Mn # Mark, nonspacing
-#     Mc # Mark, spacing combining
-#     Me # Mark, enclosing
-#     Nd # Number, decimal digit
-#     Nl # Number, letter
-#     No # Number, other
-#     Pc # Punctuation, connector
-#     Pd # Punctuation, dash
-#     Ps # Punctuation, open
-#     Pe # Punctuation, close
-#     Pi # Punctuation, initial quote
-#     Pf # Punctuation, final quote
-#     Po # Punctuation, other
-#     Sm # Symbol, math
-#     Sc # Symbol, currency
-#     Sk # Symbol, modifier
-#     So # Symbol, other
-#     Zs # Separator, space
-#     Zl # Separator, line
-#     Zp # Separator, paragraph
-#     Cc # Other, control
-#     Cf # Other, format
-#     Cs # Other, surrogate
-#     Co # Other, private use
-#     Cn # Other, not assigned (including noncharacters)
-# end
+module GeneralCategories
+
+using EzXML
+
+export GeneralCategory, get_generalcategory
+
+@enum GeneralCategory begin
+    Lu # Letter, uppercase
+    Ll # Letter, lowercase
+    Lt # Letter, titlecase
+    Lm # Letter, modifier
+    Lo # Letter, other
+    Mn # Mark, nonspacing
+    Mc # Mark, spacing combining
+    Me # Mark, enclosing
+    Nd # Number, decimal digit
+    Nl # Number, letter
+    No # Number, other
+    Pc # Punctuation, connector
+    Pd # Punctuation, dash
+    Ps # Punctuation, open
+    Pe # Punctuation, close
+    Pi # Punctuation, initial quote
+    Pf # Punctuation, final quote
+    Po # Punctuation, other
+    Sm # Symbol, math
+    Sc # Symbol, currency
+    Sk # Symbol, modifier
+    So # Symbol, other
+    Zs # Separator, space
+    Zl # Separator, line
+    Zp # Separator, paragraph
+    Cc # Other, control
+    Cf # Other, format
+    Cs # Other, surrogate
+    Co # Other, private use
+    Cn # Other, not assigned (including noncharacters)
+end
+
+function get_generalcategory(node::EzXML.Node)::GeneralCategory
+    gc_str = String("")
+    try
+        gc_str = node["gc"]
+    catch
+        error("Failed to get gc(General Category).")
+    end
+    if gc_str == "Lu" Lu
+    elseif gc_str == "Ll" Ll
+    elseif gc_str == "Lt" Lt
+    elseif gc_str == "Lm" Lm
+    elseif gc_str == "Lo" Lo
+    elseif gc_str == "Mn" Mn
+    elseif gc_str == "Mc" Mc
+    elseif gc_str == "Me" Me
+    elseif gc_str == "Nd" Nd
+    elseif gc_str == "Nl" Nl
+    elseif gc_str == "No" No
+    elseif gc_str == "Pc" Pc
+    elseif gc_str == "Pd" Pd
+    elseif gc_str == "Ps" Ps
+    elseif gc_str == "Pe" Pe
+    elseif gc_str == "Pi" Pi
+    elseif gc_str == "Pf" Pf
+    elseif gc_str == "Po" Po
+    elseif gc_str == "Sm" Sm
+    elseif gc_str == "Sc" Sc
+    elseif gc_str == "Sk" Sk
+    elseif gc_str == "So" So
+    elseif gc_str == "Zs" Zs
+    elseif gc_str == "Zl" Zl
+    elseif gc_str == "Zp" Zp
+    elseif gc_str == "Cc" Cc
+    elseif gc_str == "Cf" Cf
+    elseif gc_str == "Cs" Cs
+    elseif gc_str == "Co" Co
+    elseif gc_str == "Cn" Cn
+    else error("No gc matched \n gc = $gc_str")
+    end
+end
+
+end
+
+using .GeneralCategories
+
 
 # """
 # # Fields
@@ -425,8 +485,8 @@ struct UCDRepertoireNode
     na::String
     # na1::String
     name_alias::Vector{NameAlias}
-    # blk::String
-    # gc::GeneralCategory
+    blk::String
+    gc::GeneralCategory
     # ccc::Int16 # Canonical Combining Class in Decimal
     # bidi::BidirectionalProperties
     # decomp::DecompositionProperties
@@ -454,12 +514,16 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     cp = get_codepoint(node)
     na = get_name(node)
     name_alias = get_namealiases(node)
+    blk = get_block(node)
+    gc = get_generalcategory(node)
 
     return UCDRepertoireNode(
         type,
         cp,
         na,
-        name_alias
+        name_alias,
+        blk,
+        gc,
     )
 end
 
