@@ -19,6 +19,22 @@ first::UInt32
 last::UInt32
 end
 
+"""
+    format(cp::SingleCodePoint)::String
+
+Return codepoint in `String`.
+
+If ``cp \\leq \\mathrm{FFFF}``, digit is 4, else, digit is 6.
+"""
+function format(cp::SingleCodePoint)::String
+    val = cp.cp # UTint32
+    if val <= 0xFFFF
+        string(val, base=16, pad=4)
+    else
+        string(val, base=16, pad=6)
+    end
+end
+
 ###############################################################
 # code point type
 

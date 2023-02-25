@@ -8,17 +8,20 @@ using Test
         @test !isempty(read("../deps/ucd.all.flat.xml"))
     end
 
-    char_0x0000 = UCDxml.UCDRepertoireNode(
-        UCDxml.char,
-        UCDxml.SingleCodePoint(UInt32(0x0)),
-        "1.1",
-        "",
-        "NULL",
-        [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
-        "ASCII",
-        UCDxml.GeneralCategories.Cc,
-        Int16(0),
+    char_0x0000_code = """
+    UCDxml.UCDRepertoireNode(\
+        UCDxml.char,\
+        UCDxml.SingleCodePoint(UInt32(0x0)),\
+        "1.1",\
+        "",\
+        "NULL",\
+        [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],\
+        "ASCII",\
+        UCDxml.GeneralCategories.Cc,\
+        Int16(0),\
     )
+    """
+    char_0x0000 = eval(Meta.parse(char_0x0000_code))
 
     @testset "Type and func test" begin
         @test UCDxml.SingleCodePoint(UInt32(0x0)) == UCDxml.SingleCodePoint(UInt32(0x0))
@@ -39,7 +42,7 @@ using Test
         ) == char_0x0000
     end
 
-    @testset "Result check" begin
+    @testset "Parse result check" begin
         # NULL
         @test ucd_repertoire[1] == UCDxml.UCDRepertoireNode(
             UCDxml.char,
@@ -65,5 +68,14 @@ using Test
             UCDxml.GeneralCategories.Lo,
             UInt16(0),
         )
+    end
+
+    @testset "Write result test" begin
+        io = IOBuffer()
+        @testset "Modules" begin
+            @test UCDxml.out_codepointtype(char_0x0000.type) == "char"
+            @test UCDxml.out_codepoint(char_0x0000.cp) == "UCDxml.SingleCodePoint(UInt32(0000))"
+        end
+        close(io)
     end
 end

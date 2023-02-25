@@ -28,27 +28,11 @@ function Base.:(==)(a::T, b::T) where T<:RangeCodePoint
     a.first == b.first && a.last == b.last
 end
 
-"""
-    format(cp::SingleCodePoint)::String
-
-Return codepoint in `String`.
-
-If ``cp \\leq \\mathrm{FFFF}``, digit is 4, else, digit is 6.
-"""
-function format(cp::SingleCodePoint)::String
-    val = cp.cp # UTint32
-    if val <= 0xFFFF
-        string(val, base=16, pad=4)
-    else
-        string(val, base=16, pad=6)
-    end
-end
-
 
 ###############################################################
 # code point type
 
-function get_codepointtype(node::EzXML.Node)
+function get_codepointtype(node::EzXML.Node)::CodePointType
     nodename = EzXML.nodename(node)
     if nodename == "char"
         return char
@@ -77,6 +61,7 @@ end
 "replace # with actual number when cp is single code point."
 function get_name(node::EzXML.Node, cp::T)::String where T<:CodePointsSet
     raw_na = node["na"]
+    # replace '#' with codepoint number to get formal name
     if isnothing(findfirst('#', raw_na))
         return raw_na
     else
