@@ -73,8 +73,12 @@ using Test
     @testset "Write result test" begin
         io = IOBuffer()
         @testset "Modules" begin
-            @test UCDxml.out_codepointtype(char_0x0000.type) == "char"
+            @test UCDxml.out_codepointtype(char_0x0000.type) == "UCDxml.char"
+            @test (x -> (UCDxml.out_codepointtype(x) |> Meta.parse |> eval) == x)(char_0x0000.type)
             @test UCDxml.out_codepoint(char_0x0000.cp) == "UCDxml.SingleCodePoint(UInt32(0000))"
+            @test (x -> (UCDxml.out_codepoint(x) |> Meta.parse |> eval) == x)(char_0x0000.cp)
+            @test UCDxml.out_name_alias_vec(char_0x0000.name_alias) == "[UCDxml.NameAlias(\"NUL\", \"abbreviation\"), UCDxml.NameAlias(\"NULL\", \"control\")]"
+            @test (x -> (UCDxml.out_name_alias_vec(x) |> Meta.parse |> eval) == x)(char_0x0000.name_alias)
         end
         close(io)
     end
