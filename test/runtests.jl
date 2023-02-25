@@ -17,6 +17,7 @@ using Test
         [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
         "ASCII",
         UCDxml.GeneralCategories.Cc,
+        Int16(0),
     )
 
     @testset "Type and func test" begin
@@ -34,6 +35,7 @@ using Test
             [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
             "ASCII",
             UCDxml.GeneralCategories.Cc,
+            UInt16(0),
         ) == char_0x0000
     end
 
@@ -48,6 +50,7 @@ using Test
             [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
             "ASCII",
             UCDxml.GeneralCategories.Cc,
+            UInt16(0),
         )
         # CJK ideograph
         # na should be replaced with its cp
@@ -60,6 +63,7 @@ using Test
             [],
             "CJK_Ext_A",
             UCDxml.GeneralCategories.Lo,
+            UInt16(0),
         )
     end
 end

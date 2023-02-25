@@ -42,7 +42,7 @@ end
     format(cp::SingleCodePoint)::String
 
 Return codepoint in `String`.
-If \$cp \\leq \\mathrm{FFFF}\$, digit is 4, else, digit is 6.
+If ``cp \\leq \\mathrm{FFFF}``, digit is 4, else, digit is 6.
 """
 function format(cp::SingleCodePoint)::String
     val = cp.cp # UTint32
@@ -288,6 +288,15 @@ end
 
 using .GeneralCategories
 
+# ccc (Cannonical Combining Class)
+"ccc (Canonical Combining Class). `` 0 \\leq ccc \\leq 240``"
+function get_ccc(node::EzXML.Node)::Int16
+    try
+        parse(Int16, node["ccc"], base=10)
+    catch
+        error("Failed to get ccc.")
+    end
+end
 
 # """
 # # Fields
@@ -596,7 +605,7 @@ struct UCDRepertoireNode
     name_alias::Vector{NameAlias}
     blk::String
     gc::GeneralCategory
-    # ccc::Int16 # Canonical Combining Class in Decimal
+    ccc::Int16 # Canonical Combining Class in Decimal
     # bidi::BidirectionalProperties
     # decomp::DecompositionProperties
     # numeric::NumericProperties
@@ -627,6 +636,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     name_alias = get_namealiases(node)
     blk = get_block(node)
     gc = get_generalcategory(node)
+    ccc = get_ccc(node)
 
     return UCDRepertoireNode(
         type,
@@ -637,6 +647,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
         name_alias,
         blk,
         gc,
+        ccc,
     )
 end
 
