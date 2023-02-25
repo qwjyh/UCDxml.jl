@@ -79,6 +79,14 @@ using Test
             @test (x -> (UCDxml.out_codepoint(x) |> Meta.parse |> eval) == x)(char_0x0000.cp)
             @test UCDxml.out_name_alias_vec(char_0x0000.name_alias) == "[UCDxml.NameAlias(\"NUL\", \"abbreviation\"), UCDxml.NameAlias(\"NULL\", \"control\")]"
             @test (x -> (UCDxml.out_name_alias_vec(x) |> Meta.parse |> eval) == x)(char_0x0000.name_alias)
+            @test UCDxml.out_general_category(char_0x0000.gc) == "Cc"
+            @test (x -> (("UCDxml.GeneralCategories." * UCDxml.out_general_category(x)) |> Meta.parse |> eval) == x)(char_0x0000.gc)
+        end
+
+        @testset "Parse all UCDRepertoireNode" begin
+            UCDxml.write_repertoire(io, char_0x0000)
+            out_str = String(take!(io))
+            @test eval(Meta.parse(out_str)) == char_0x0000
         end
         close(io)
     end
