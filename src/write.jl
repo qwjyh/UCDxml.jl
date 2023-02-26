@@ -5,10 +5,10 @@ function out_codepoint(cps::SingleCodePoint)::String
 end
 
 function out_codepoint(cps::RangeCodePoint)::String
-    "UCDxml.RangeCodePoint(\
-        UInt32(0x" * string(cps.first, base=16) * "),\
-        UInt32(0x" * string(cps.last, base=16) * ")\
-    )"
+    "UCDxml.RangeCodePoint(" *
+        "UInt32(0x" * string(cps.first, base=16) * ")," *
+        "UInt32(0x" * string(cps.last, base=16) * ")" *
+    ")"
 end
 
 ###############################################################

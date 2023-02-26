@@ -9,16 +9,16 @@ using Test
     end
 
     char_0x0000_code = """
-    UCDxml.UCDRepertoireNode(\
-        UCDxml.char,\
-        UCDxml.SingleCodePoint(UInt32(0x0)),\
-        "1.1",\
-        "",\
-        "NULL",\
-        [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],\
-        "ASCII",\
-        UCDxml.GeneralCategories.Cc,\
-        UInt8(0),\
+    UCDxml.UCDRepertoireNode(
+        UCDxml.char,
+        UCDxml.SingleCodePoint(UInt32(0x0)),
+        "1.1",
+        "",
+        "NULL",
+        [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],
+        "ASCII",
+        UCDxml.GeneralCategories.Cc,
+        UInt8(0),
     )
     """
     char_0x0000 = eval(Meta.parse(char_0x0000_code))
