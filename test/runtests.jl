@@ -18,7 +18,7 @@ using Test
         [UCDxml.NameAlias("NUL", "abbreviation"), UCDxml.NameAlias("NULL", "control")],\
         "ASCII",\
         UCDxml.GeneralCategories.Cc,\
-        Int16(0),\
+        UInt8(0),\
     )
     """
     char_0x0000 = eval(Meta.parse(char_0x0000_code))
@@ -75,7 +75,7 @@ using Test
         @testset "Modules" begin
             @test UCDxml.out_codepointtype(char_0x0000.type) == "UCDxml.char"
             @test (x -> (UCDxml.out_codepointtype(x) |> Meta.parse |> eval) == x)(char_0x0000.type)
-            @test UCDxml.out_codepoint(char_0x0000.cp) == "UCDxml.SingleCodePoint(UInt32(0000))"
+            @test UCDxml.out_codepoint(char_0x0000.cp) == "UCDxml.SingleCodePoint(UInt32(0x0000))"
             @test (x -> (UCDxml.out_codepoint(x) |> Meta.parse |> eval) == x)(char_0x0000.cp)
             @test UCDxml.out_name_alias_vec(char_0x0000.name_alias) == "[UCDxml.NameAlias(\"NUL\", \"abbreviation\"), UCDxml.NameAlias(\"NULL\", \"control\")]"
             @test (x -> (UCDxml.out_name_alias_vec(x) |> Meta.parse |> eval) == x)(char_0x0000.name_alias)
@@ -87,6 +87,18 @@ using Test
             UCDxml.write_repertoire(io, char_0x0000)
             out_str = String(take!(io))
             @test eval(Meta.parse(out_str)) == char_0x0000
+            rand_node = rand(ucd_repertoire)
+            UCDxml.write_repertoire(io, rand_node)
+            out_str = String(take!(io))
+            @test eval(Meta.parse(out_str)) == rand_node
+        end
+        
+        @testset "Write and parse all UCDRepertoireNode" begin
+            for ucd_node in ucd_repertoire
+                UCDxml.write_repertoire(io, ucd_node)
+                out_str = String(take!(io))
+                @test eval(Meta.parse(out_str)) == ucd_node
+            end
         end
         close(io)
     end

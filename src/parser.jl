@@ -151,9 +151,9 @@ end
 
 # ccc (Cannonical Combining Class)
 "ccc (Canonical Combining Class). `` 0 \\leq ccc \\leq 240``"
-function get_ccc(node::EzXML.Node)::Int16
+function get_ccc(node::EzXML.Node)::UInt8
     try
-        parse(Int16, node["ccc"], base=10)
+        parse(UInt8, node["ccc"], base=10)
     catch
         error("Failed to get ccc.")
     end
@@ -461,12 +461,33 @@ function Base.show(io::IO, r::UCDRepertoireNode)
 end
 
 function Base.:(==)(a::T, b::T) where T<:UCDRepertoireNode
-    f = fieldnames(T)
-    getfield.(Ref(a), f) == getfield.(Ref(b), f)
+    fv = fieldnames(T)
+    # (map(f->getfield(a, f), fv), map(f->getfield(b, f), fv)) |>
+        # zip |>
+        # x -> map(x->(x[1]==x[2]), x) |>
+        # bv -> reduce(&, bv)
+    # map(
+    #     x->(x[1]==x[2]),
+    #     zip(
+    #         map(f->getfield(a, f), fv),
+    #         map(f->getfield(b, f), fv)
+    #     )
+    # ) |>
+    #     bv -> reduce(&, bv)
+    getfield.(Ref(a), fv) == getfield.(Ref(b), fv)
 end
 
 
 function Base.:(==)(a::T, b::T) where T<:Property
     f = fieldnames(T)
     getfield.(Ref(a), f) == getfield.(Ref(b), f)
+end
+
+function diff_ucd(a::T, b::T) where T<:UCDRepertoireNode
+    fv = fieldnames(T)
+    for f in fv
+        if getfield(a, f) != getfield(b, f)
+            println("mismatched: $f")
+        end
+    end
 end

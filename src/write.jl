@@ -1,13 +1,13 @@
 ##############################################################
 # code point set
 function out_codepoint(cps::SingleCodePoint)::String
-    "UCDxml.SingleCodePoint(UInt32(" * format(cps) * "))"
+    "UCDxml.SingleCodePoint(UInt32(0x" * format(cps) * "))"
 end
 
 function out_codepoint(cps::RangeCodePoint)::String
     "UCDxml.RangeCodePoint(\
-        UInt32(" * string(cps.first, base=16) * "),\
-        UInt32(" * string(cps.last, base=16) * ")\
+        UInt32(0x" * string(cps.first, base=16) * "),\
+        UInt32(0x" * string(cps.last, base=16) * ")\
     )"
 end
 
@@ -92,13 +92,17 @@ function out_general_category(gc::GeneralCategory)::String
 end
 
 # ccc (Canonical Combining Class)
-function out_ccc(ccc::Int16)::String
-    string(ccc, base=10)
+function out_ccc(ccc::UInt8)::String
+    "UInt8(" * string(ccc, base=10) * ")"
 end
 
 ###############################################################
 # main
+"""
+    function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
 
+Write single ucd repertoire node into `IO`.
+"""
 function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
     print(io,
         "UCDxml.UCDRepertoireNode(", join([
@@ -117,9 +121,27 @@ function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
 end
 
 
-
+"""
+Write ucd repertoire julia hard code into the file, "ucd_coded.jl"
+"""
 function write_ucd_coded()
     open("ucd_coded.jl", "w") do io
-        println(io, "include(\"typedef.jl\")")
+        # println(io, "include(\"typedef.jl\")")
+        # println(io, "using UCDxml")
+        println(io, "ucd_list = UCDxml.UCDRepertoireNode[]")
+        num_ucd_repertoire = length(ucd_repertoire)
+        block_size = num_ucd_repertoire ÷ 100
+        println(io, "blk = [")
+        for (i, ucd) in enumerate(ucd_repertoire)
+            if i % block_size == 0
+                println(io, "]")
+                println(io, "append!(ucd_list, blk)")
+                println(io, "blk = [")
+            end
+            write_repertoire(io, ucd)
+            println(io, ",")
+        end
+        println(io, "]")
+        println(io, "append!(ucd_list, blk)")
     end
 end

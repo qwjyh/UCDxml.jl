@@ -200,7 +200,7 @@ struct UCDRepertoireNode
     name_alias::Vector{NameAlias}
     blk::String
     gc::GeneralCategory
-    ccc::Int16 # Canonical Combining Class in Decimal
+    ccc::UInt8 # Canonical Combining Class in Decimal
     # bidi::BidirectionalProperties
     # decomp::DecompositionProperties
     # numeric::NumericProperties
