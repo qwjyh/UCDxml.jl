@@ -1,22 +1,12 @@
+# parse xml
+
 import EzXML
+
+# type definitions
+include("typedef.jl")
 
 ##############################################################
 # code point set
-"""
-    abstract type CodePointsSet end
-
-There are two types of code point representation.
-`SingleCodePoint` and `RangeCodePoint` with `first` and `last` codepoint.
-Each codepoint value is `UInt32` (as it is expressed as hexadecimal number with four to six digits, ie. minimum is `0x0000` and maximum is `0xFFFFFF`(UAX#44 #4.2.2))
-"""
-abstract type CodePointsSet end
-struct SingleCodePoint <: CodePointsSet
-    cp::UInt32
-end
-struct RangeCodePoint <: CodePointsSet
-    first::UInt32
-    last::UInt32
-end
 
 function get_codepoint(node::EzXML.Node)::CodePointsSet
     cps = try
@@ -38,43 +28,11 @@ function Base.:(==)(a::T, b::T) where T<:RangeCodePoint
     a.first == b.first && a.last == b.last
 end
 
-"""
-    format(cp::SingleCodePoint)::String
-
-Return codepoint in `String`.
-If ``cp \\leq \\mathrm{FFFF}``, digit is 4, else, digit is 6.
-"""
-function format(cp::SingleCodePoint)::String
-    val = cp.cp # UTint32
-    if val <= 0xFFFF
-        string(val, base=16, pad=4)
-    else
-        string(val, base=16, pad=6)
-    end
-end
-
 
 ###############################################################
 # code point type
 
-"""
-    @enum CodePointType begin
-        reserved
-        noncharacter
-        surrogate
-        char
-    end
-
-CodePoint type enum.
-"""
-@enum CodePointType begin
-    reserved
-    noncharacter
-    surrogate
-    char
-end
-
-function get_codepointtype(node::EzXML.Node)
+function get_codepointtype(node::EzXML.Node)::CodePointType
     nodename = EzXML.nodename(node)
     if nodename == "char"
         return char
@@ -93,7 +51,6 @@ end
 
 #################################################################
 # properties
-abstract type Property end
 
 # age
 function get_age(node::EzXML.Node)::String
@@ -104,6 +61,7 @@ end
 "replace # with actual number when cp is single code point."
 function get_name(node::EzXML.Node, cp::T)::String where T<:CodePointsSet
     raw_na = node["na"]
+    # replace '#' with codepoint number to get formal name
     if isnothing(findfirst('#', raw_na))
         return raw_na
     else
@@ -125,23 +83,6 @@ function get_na1(node::EzXML.Node)::String
 end
 
 # name alias
-# TODO: replace type with enum
-"""
-    struct NameAlias <: Property
-        alias::String
-        type::String
-    end
-
-name alias
-# Fields
-- `alias::String`: name
-- `type::String`: type of alias("abbreviation", "alternative", "control", "correction" or "figment")
-"""
-struct NameAlias <: Property
-    alias::String
-    type::String
-end
-
 function get_namealiases(node::EzXML.Node)::Vector{NameAlias}
     aliases = NameAlias[]
     for child in elements(node)
@@ -166,83 +107,6 @@ function get_block(node::EzXML.Node)::String
 end
 
 # general category
-"""
-module for GeneralCategories.
-To separate namespace for General Category enum.
-"""
-module GeneralCategories
-
-using EzXML
-
-export GeneralCategory, get_generalcategory
-
-"""
-    @enum GeneralCategory begin
-        Lu # Letter, uppercase
-        Ll # Letter, lowercase
-        Lt # Letter, titlecase
-        Lm # Letter, modifier
-        Lo # Letter, other
-        Mn # Mark, nonspacing
-        Mc # Mark, spacing combining
-        Me # Mark, enclosing
-        Nd # Number, decimal digit
-        Nl # Number, letter
-        No # Number, other
-        Pc # Punctuation, connector
-        Pd # Punctuation, dash
-        Ps # Punctuation, open
-        Pe # Punctuation, close
-        Pi # Punctuation, initial quote
-        Pf # Punctuation, final quote
-        Po # Punctuation, other
-        Sm # Symbol, math
-        Sc # Symbol, currency
-        Sk # Symbol, modifier
-        So # Symbol, other
-        Zs # Separator, space
-        Zl # Separator, line
-        Zp # Separator, paragraph
-        Cc # Other, control
-        Cf # Other, format
-        Cs # Other, surrogate
-        Co # Other, private use
-        Cn # Other, not assigned (including noncharacters)
-    end
-"""
-@enum GeneralCategory begin
-    Lu # Letter, uppercase
-    Ll # Letter, lowercase
-    Lt # Letter, titlecase
-    Lm # Letter, modifier
-    Lo # Letter, other
-    Mn # Mark, nonspacing
-    Mc # Mark, spacing combining
-    Me # Mark, enclosing
-    Nd # Number, decimal digit
-    Nl # Number, letter
-    No # Number, other
-    Pc # Punctuation, connector
-    Pd # Punctuation, dash
-    Ps # Punctuation, open
-    Pe # Punctuation, close
-    Pi # Punctuation, initial quote
-    Pf # Punctuation, final quote
-    Po # Punctuation, other
-    Sm # Symbol, math
-    Sc # Symbol, currency
-    Sk # Symbol, modifier
-    So # Symbol, other
-    Zs # Separator, space
-    Zl # Separator, line
-    Zp # Separator, paragraph
-    Cc # Other, control
-    Cf # Other, format
-    Cs # Other, surrogate
-    Co # Other, private use
-    Cn # Other, not assigned (including noncharacters)
-end
-
 function get_generalcategory(node::EzXML.Node)::GeneralCategory
     gc_str = String("")
     try
@@ -250,49 +114,46 @@ function get_generalcategory(node::EzXML.Node)::GeneralCategory
     catch
         error("Failed to get gc(General Category).")
     end
-    if gc_str == "Lu" Lu
-    elseif gc_str == "Ll" Ll
-    elseif gc_str == "Lt" Lt
-    elseif gc_str == "Lm" Lm
-    elseif gc_str == "Lo" Lo
-    elseif gc_str == "Mn" Mn
-    elseif gc_str == "Mc" Mc
-    elseif gc_str == "Me" Me
-    elseif gc_str == "Nd" Nd
-    elseif gc_str == "Nl" Nl
-    elseif gc_str == "No" No
-    elseif gc_str == "Pc" Pc
-    elseif gc_str == "Pd" Pd
-    elseif gc_str == "Ps" Ps
-    elseif gc_str == "Pe" Pe
-    elseif gc_str == "Pi" Pi
-    elseif gc_str == "Pf" Pf
-    elseif gc_str == "Po" Po
-    elseif gc_str == "Sm" Sm
-    elseif gc_str == "Sc" Sc
-    elseif gc_str == "Sk" Sk
-    elseif gc_str == "So" So
-    elseif gc_str == "Zs" Zs
-    elseif gc_str == "Zl" Zl
-    elseif gc_str == "Zp" Zp
-    elseif gc_str == "Cc" Cc
-    elseif gc_str == "Cf" Cf
-    elseif gc_str == "Cs" Cs
-    elseif gc_str == "Co" Co
-    elseif gc_str == "Cn" Cn
+    if gc_str == "Lu" GeneralCategories.Lu
+    elseif gc_str == "Ll" GeneralCategories.Ll
+    elseif gc_str == "Lt" GeneralCategories.Lt
+    elseif gc_str == "Lm" GeneralCategories.Lm
+    elseif gc_str == "Lo" GeneralCategories.Lo
+    elseif gc_str == "Mn" GeneralCategories.Mn
+    elseif gc_str == "Mc" GeneralCategories.Mc
+    elseif gc_str == "Me" GeneralCategories.Me
+    elseif gc_str == "Nd" GeneralCategories.Nd
+    elseif gc_str == "Nl" GeneralCategories.Nl
+    elseif gc_str == "No" GeneralCategories.No
+    elseif gc_str == "Pc" GeneralCategories.Pc
+    elseif gc_str == "Pd" GeneralCategories.Pd
+    elseif gc_str == "Ps" GeneralCategories.Ps
+    elseif gc_str == "Pe" GeneralCategories.Pe
+    elseif gc_str == "Pi" GeneralCategories.Pi
+    elseif gc_str == "Pf" GeneralCategories.Pf
+    elseif gc_str == "Po" GeneralCategories.Po
+    elseif gc_str == "Sm" GeneralCategories.Sm
+    elseif gc_str == "Sc" GeneralCategories.Sc
+    elseif gc_str == "Sk" GeneralCategories.Sk
+    elseif gc_str == "So" GeneralCategories.So
+    elseif gc_str == "Zs" GeneralCategories.Zs
+    elseif gc_str == "Zl" GeneralCategories.Zl
+    elseif gc_str == "Zp" GeneralCategories.Zp
+    elseif gc_str == "Cc" GeneralCategories.Cc
+    elseif gc_str == "Cf" GeneralCategories.Cf
+    elseif gc_str == "Cs" GeneralCategories.Cs
+    elseif gc_str == "Co" GeneralCategories.Co
+    elseif gc_str == "Cn" GeneralCategories.Cn
     else error("No gc matched \n gc = $gc_str")
     end
 end
 
-end
-
-using .GeneralCategories
 
 # ccc (Cannonical Combining Class)
 "ccc (Canonical Combining Class). `` 0 \\leq ccc \\leq 240``"
-function get_ccc(node::EzXML.Node)::Int16
+function get_ccc(node::EzXML.Node)::UInt8
     try
-        parse(Int16, node["ccc"], base=10)
+        parse(UInt8, node["ccc"], base=10)
     catch
         error("Failed to get ccc.")
     end
@@ -568,64 +429,8 @@ end
 #     ExtPict::Bool
 # end
 
-
-"""
-    struct UCDRepertoireNode
-
-UAX#42
-# Fields
-- `type::CodePointType`: `char`, `reserved`, `noncharacter`, `surrogate`
-- `cp::CodePointsSet`: single code point or range with first, last
-- `na::String`: standard name
-- `na1`: 1.0 name
-- `name_alias::Vector{NameAlias}`: zero or more
-    - `alias`: String
-    - `type`: "abbreviation", "alternate", ... etc
-- `blk::String`: block
-- `gc::GeneralCategory`: general category (enum)
-- `ccc`: canonical combining class in decimal
-- `bidi`: bidirectional properties (see `BidirectionalProperties` doc for more details)
-- `decomp`: see DecompositionProperties
-- `numeric`: see NumericProperties
-- `joining`: see JoiningProperties
-- `lb`: see LineBreakProperties
-- `ea`: east asian width
-- `sc`: script
-- `scx`: script extension
-- `isc`: ISO 10646 comment filed
-- `hangul`: see HangulProperties
-- `indic`: see IndicProperties
-"""
-struct UCDRepertoireNode
-    type::CodePointType
-    cp::CodePointsSet
-    age::String
-    na::String
-    na1::String
-    name_alias::Vector{NameAlias}
-    blk::String
-    gc::GeneralCategory
-    ccc::Int16 # Canonical Combining Class in Decimal
-    # bidi::BidirectionalProperties
-    # decomp::DecompositionProperties
-    # numeric::NumericProperties
-    # joining::JoiningProperties
-    # lb::LineBreakProperties
-    # ea::EastAsianWidth
-    # sc::Script
-    # scx::Vector{Script}
-    # isc::String
-    # hangul::HangulProperties
-    # indic::IndicProperties
-    # idpt::IdPtProperties
-    # fungr
-    # bound
-    # ideograph
-    # miscellaneous
-    # unihan
-    # nushu
-    # emoji::EmojiProperties
-end
+##################################################################################
+# main
 
 function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     type = get_codepointtype(node)
@@ -656,12 +461,33 @@ function Base.show(io::IO, r::UCDRepertoireNode)
 end
 
 function Base.:(==)(a::T, b::T) where T<:UCDRepertoireNode
-    f = fieldnames(T)
-    getfield.(Ref(a), f) == getfield.(Ref(b), f)
+    fv = fieldnames(T)
+    # (map(f->getfield(a, f), fv), map(f->getfield(b, f), fv)) |>
+        # zip |>
+        # x -> map(x->(x[1]==x[2]), x) |>
+        # bv -> reduce(&, bv)
+    # map(
+    #     x->(x[1]==x[2]),
+    #     zip(
+    #         map(f->getfield(a, f), fv),
+    #         map(f->getfield(b, f), fv)
+    #     )
+    # ) |>
+    #     bv -> reduce(&, bv)
+    getfield.(Ref(a), fv) == getfield.(Ref(b), fv)
 end
 
 
 function Base.:(==)(a::T, b::T) where T<:Property
     f = fieldnames(T)
     getfield.(Ref(a), f) == getfield.(Ref(b), f)
+end
+
+function diff_ucd(a::T, b::T) where T<:UCDRepertoireNode
+    fv = fieldnames(T)
+    for f in fv
+        if getfield(a, f) != getfield(b, f)
+            println("mismatched: $f")
+        end
+    end
 end
