@@ -125,6 +125,7 @@ end
 Write ucd repertoire julia hard code into the file, "ucd_coded.jl"
 """
 function write_ucd_coded()
+    ucd_repertoire = parse_xml()
     open("ucd_coded.jl", "w") do io
         # println(io, "include(\"typedef.jl\")")
         # println(io, "using UCDxml")

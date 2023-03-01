@@ -1,8 +1,9 @@
-using UCDxml
+using UCDxml, EzXML
 using Test
 
 @testset "UCDxml.jl" begin
-    # Write your tests here.
+    # parse xml for test
+    ucd_repertoire = UCDxml.parse_xml("../deps/ucd.all.flat.xml")
 
     @testset "XML parse" begin
         @test !isempty(read("../deps/ucd.all.flat.xml"))
