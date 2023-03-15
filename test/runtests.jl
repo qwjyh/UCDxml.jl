@@ -103,4 +103,8 @@ using Test
         end
         close(io)
     end
+
+    @testset "Exported result check" begin
+        @test UCDxml.ucd_list[1] == ucd_repertoire[1]
+    end
 end

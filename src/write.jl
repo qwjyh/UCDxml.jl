@@ -122,13 +122,25 @@ end
 
 
 """
-Write ucd repertoire julia hard code into the file, "ucd_coded.jl"
+    function write_ucd_coded(;source_path::String, out_path::String)
+
+Write ucd repertoire julia hard code into the file, `out_path`
+
+# KW Arguments
+- `source_path::String`: source xml location
+- `out_path::String`: output .jl file location
 """
-function write_ucd_coded()
-    ucd_repertoire = parse_xml()
-    open("ucd_coded.jl", "w") do io
-        # println(io, "include(\"typedef.jl\")")
-        # println(io, "using UCDxml")
+function write_ucd_coded(;source_path::String, out_path::String)
+    ucd_repertoire = parse_xml(source_path)
+    open(out_path, "w") do io
+        # separate definition to avoid stack overflow
+        println(io, """
+        \"""
+            ucd_list::Vector{UCDxml.UCDRepertoireNode}
+        
+        List of all UCD entries.
+        \"""
+        """)
         println(io, "ucd_list = UCDxml.UCDRepertoireNode[]")
         num_ucd_repertoire = length(ucd_repertoire)
         block_size = num_ucd_repertoire ÷ 100
