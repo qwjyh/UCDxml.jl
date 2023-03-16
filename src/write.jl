@@ -87,7 +87,7 @@ function out_general_category(gc::GeneralCategory)::String
     elseif gc == GeneralCategories.Cs "Cs"
     elseif gc == GeneralCategories.Co "Co"
     elseif gc == GeneralCategories.Cn "Cn"
-    else error("No gc matched \n gc = $gc_str")
+    else error("No gc matched \n gc")
     end
 end
 
@@ -130,7 +130,7 @@ Write ucd repertoire julia hard code into the file, `out_path`
 - `source_path::String`: source xml location
 - `out_path::String`: output .jl file location
 """
-function write_ucd_coded(;source_path::String, out_path::String)
+function write_ucd_coded(;source_path::String = "ucd.all.flat.xml", out_path::String = "ucd_coded.jl")
     ucd_repertoire = parse_xml(source_path)
     open(out_path, "w") do io
         # separate definition to avoid stack overflow
