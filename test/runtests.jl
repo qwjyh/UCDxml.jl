@@ -73,7 +73,7 @@ using Test
             "CJK_Ext_A",
             UCDxml.GeneralCategories.Lo,
             UInt8(0),
-            UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.L, false, "", false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x3402))),
+            UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.L, false, nothing, false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x3402))),
         )
     end
 
