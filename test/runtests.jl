@@ -1,8 +1,9 @@
-using UCDxml
+using UCDxml, EzXML
 using Test
 
 @testset "UCDxml.jl" begin
-    # Write your tests here.
+    # parse xml for test
+    ucd_repertoire = UCDxml.parse_xml("../deps/ucd.all.flat.xml")
 
     @testset "XML parse" begin
         @test !isempty(read("../deps/ucd.all.flat.xml"))
@@ -101,5 +102,13 @@ using Test
             end
         end
         close(io)
+    end
+
+    @testset "Exported result check" begin
+        @testset "Check all hardcoded data is correct" begin
+            for (raw_ucd, hardcoded_ucd) in zip(ucd_repertoire, UCDxml.ucd_list)
+                @test raw_ucd == hardcoded_ucd
+            end
+        end
     end
 end

@@ -2,9 +2,6 @@
 
 import EzXML
 
-# type definitions
-include("typedef.jl")
-
 ##############################################################
 # code point set
 

@@ -1,13 +1,12 @@
 # parse xml file
 
-include("parser.jl")
+function parse_xml(location = "deps/ucd.all.flat.xml")
+    # use flat version, which doesn't use group mechanism
+    ucd = readxml(location)
+    repertoire = elements(elements(ucd.root)[2])
 
-
-# use flat version, which doesn't use group mechanism
-ucd = readxml("deps/ucd.all.flat.xml")
-repertoire = elements(elements(ucd.root)[2])
-
-ucd_repertoire = map(
-    get_repertoire_info,
-    repertoire
-)
+    ucd_repertoire = map(
+        get_repertoire_info,
+        repertoire
+    )
+end
