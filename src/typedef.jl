@@ -161,6 +161,66 @@ end
 using .GeneralCategories
 
 
+# bidirectional properties
+
+"""
+contains BidirectionalClass enum
+"""
+module BidirectionalClasses
+
+export BidirectionalClass
+
+@enum BidirectionalClass begin
+    AL; AN;
+    B; BN;
+    CS;
+    EN; ES; ET;
+    FSI;
+    L; LRE; LRI; LRO;
+    NSM;
+    ON;
+    PDF; PDI;
+    R; RLE; RLI; RLO;
+    S;
+    WS;
+end
+
+end
+
+using .BidirectionalClasses
+
+"""
+contains BidiPairedBracketType enum
+"""
+module BidiPairedBracketTypes
+
+export BidiPairedBracketType
+
+@enum BidiPairedBracketType o c n
+
+end
+
+using .BidiPairedBracketTypes
+
+
+"""
+# Fields
+- `bc`: bidirectional class (currently as String)
+- `bidi_M`: mirrored property
+- `bmg`: mirrored image of the glyph
+- `bidi_c`: bidi_control
+- `bpt`: bidi paired bracket type (enum)
+- `bpb`: bidi paired bracket properties
+"""
+struct BidirectionalProperties
+    bc::BidirectionalClass
+    Bidi_M::Bool
+    bmg::Union{Nothing, CodePointsSet}
+    Bidi_C::Bool
+    bpt::BidiPairedBracketType
+    bpb::Union{Nothing, CodePointsSet}
+end
+
 ###############################################################################################
 # main
 
@@ -201,7 +261,7 @@ struct UCDRepertoireNode
     blk::String
     gc::GeneralCategory
     ccc::UInt8 # Canonical Combining Class in Decimal
-    # bidi::BidirectionalProperties
+    bidi::BidirectionalProperties
     # decomp::DecompositionProperties
     # numeric::NumericProperties
     # joining::JoiningProperties

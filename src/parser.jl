@@ -156,40 +156,98 @@ function get_ccc(node::EzXML.Node)::UInt8
     end
 end
 
-# """
-# # Fields
-# - `bc`: bidirectional class (currently as String)
-# - `bidi_M`: mirrored property
-# - `bmg`: mirrored image of the glyph
-# - `bidi_c`: bidi_control
-# - `bpt`: bidi paired bracket type (enum)
-# - `bpb`: bidi paired bracket properties
-# """
-# struct BidirectionalProperties
-#     bc::BidirectionalClass
-#     Bidi_M::Bool
-#     bmg::Union{Nothing, SingleCodePoint}
-#     Bidi_C::Bool
-#     bpt::BidiPairdBracketType
-#     bpb::Union{Nothing, SingleCodePoint}
-# end
+function get_bidirectional_class(node::EzXML.Node)::BidirectionalClass
+    bc_str = String("")
+    try
+        bc_str = node["bc"]
+    catch
+        error("Failed to get bc(Bidirectional Class).")
+    end
+    if bc_str == "AL" BidirectionalClasses.AL
+    elseif bc_str == "AN" BidirectionalClasses.AN
+    elseif bc_str == "B" BidirectionalClasses.B
+    elseif bc_str == "BN" BidirectionalClasses.BN
+    elseif bc_str == "CS" BidirectionalClasses.CS
+    elseif bc_str == "EN" BidirectionalClasses.EN
+    elseif bc_str == "ES" BidirectionalClasses.ES
+    elseif bc_str == "ET" BidirectionalClasses.ET
+    elseif bc_str == "FSI" BidirectionalClasses.FSI
+    elseif bc_str == "L" BidirectionalClasses.L
+    elseif bc_str == "LRE" BidirectionalClasses.LRE
+    elseif bc_str == "LRI" BidirectionalClasses.LRI
+    elseif bc_str == "LRO" BidirectionalClasses.LRO
+    elseif bc_str == "NSM" BidirectionalClasses.NSM
+    elseif bc_str == "ON" BidirectionalClasses.ON
+    elseif bc_str == "PDF" BidirectionalClasses.PDF
+    elseif bc_str == "PDI" BidirectionalClasses.PDI
+    elseif bc_str == "R" BidirectionalClasses.R
+    elseif bc_str == "RLE" BidirectionalClasses.RLE
+    elseif bc_str == "RLI" BidirectionalClasses.RLI
+    elseif bc_str == "RLO" BidirectionalClasses.RLO
+    elseif bc_str == "S" BidirectionalClasses.S
+    elseif bc_str == "WS" BidirectionalClasses.WS
+    else error("No bc matched: bc = $bc_str")
+    end
+end
 
-# @enum BidirectionalClass begin
-#     AL; AN;
-#     B; BN;
-#     CS;
-#     EN; ES; ET;
-#     FSI;
-#     L; LRE; LRI; LRO;
-#     NSM;
-#     ON;
-#     PDF; PDI;
-#     R; RLE; RLI; RLO;
-#     S;
-#     WS;
-# end
+"""
+Translate bool property strings described in 2.5 Common attributes in UAX#42.
+"""
+function get_bool(node::EzXML.Node, key::String)::Bool
+    if node[key] == "Y"
+        return true
+    elseif node[key] == "N"
+        return false
+    else
+        error("Bool parse failed: str = $(node[key])")
+    end
+end
 
-# @enum BidiPairdBracketType o c n
+function get_codepointset_or_nothing(node::EzXML.Node, key::String)::Union{Nothing, CodePointsSet}
+    if node[key] == String("")
+        return nothing
+    else
+        if node[key] == "#" # this points itself
+            # TODO: performance issue?
+            # TODO: could be RangeCodePoint?
+            return get_codepoint(node)
+        else
+            return SingleCodePoint(parse(UInt32, node[key], base = 16)) # TODO: no error handling
+        end
+    end
+end
+
+function get_BidiPairedBracketType(node::EzXML.Node)::BidiPairedBracketType
+    bpt_str = String("")
+    try
+        bpt_str = node["bpt"]
+    catch
+        error("Failed to get bpt.")
+    end
+    if bpt_str == "o"
+        return BidiPairedBracketTypes.o
+    elseif bpt_str == "c"
+        return BidiPairedBracketTypes.c
+    elseif bpt_str == "n"
+        return BidiPairedBracketTypes.n
+    else
+        error("No bpt matched: bpt = $bpt_str")
+    end
+end
+
+function get_bidirectional_properties(node::EzXML.Node)::BidirectionalProperties
+    return BidirectionalProperties(
+        get_bidirectional_class(node),
+        get_bool(node, "Bidi_M"),
+        get_codepointset_or_nothing(node, "bmg"),
+        get_bool(node, "Bidi_C"),
+        get_BidiPairedBracketType(node),
+        get_codepointset_or_nothing(node, "bpb")
+    )
+end
+
+
+
 
 # """
 # # Fields
@@ -439,6 +497,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     blk = get_block(node)
     gc = get_generalcategory(node)
     ccc = get_ccc(node)
+    bidi = get_bidirectional_properties(node)
 
     return UCDRepertoireNode(
         type,
@@ -450,6 +509,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
         blk,
         gc,
         ccc,
+        bidi,
     )
 end
 

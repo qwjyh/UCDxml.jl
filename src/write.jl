@@ -87,13 +87,78 @@ function out_general_category(gc::GeneralCategory)::String
     elseif gc == GeneralCategories.Cs "Cs"
     elseif gc == GeneralCategories.Co "Co"
     elseif gc == GeneralCategories.Cn "Cn"
-    else error("No gc matched \n gc")
+    else error("No gc matched: $gc")
     end
 end
 
 # ccc (Canonical Combining Class)
 function out_ccc(ccc::UInt8)::String
     "UInt8(" * string(ccc, base=10) * ")"
+end
+
+###############################################################
+# Bidi
+function out_BidirectionalClass(bc::BidirectionalClass)::String
+    if bc == BidirectionalClasses.AL "AL"
+    elseif bc == BidirectionalClasses.AN "AN"
+    elseif bc == BidirectionalClasses.B "B"
+    elseif bc == BidirectionalClasses.BN "BN"
+    elseif bc == BidirectionalClasses.CS "CS"
+    elseif bc == BidirectionalClasses.EN "EN"
+    elseif bc == BidirectionalClasses.ES "ES"
+    elseif bc == BidirectionalClasses.ET "ET"
+    elseif bc == BidirectionalClasses.FSI "FSI"
+    elseif bc == BidirectionalClasses.L "L"
+    elseif bc == BidirectionalClasses.LRE "LRE"
+    elseif bc == BidirectionalClasses.LRI "LRI"
+    elseif bc == BidirectionalClasses.LRO "LRO"
+    elseif bc == BidirectionalClasses.NSM "NSM"
+    elseif bc == BidirectionalClasses.ON "ON"
+    elseif bc == BidirectionalClasses.PDF "PDF"
+    elseif bc == BidirectionalClasses.PDI "PDI"
+    elseif bc == BidirectionalClasses.R "R"
+    elseif bc == BidirectionalClasses.RLE "RLE"
+    elseif bc == BidirectionalClasses.RLI "RLI"
+    elseif bc == BidirectionalClasses.RLO "RLO"
+    elseif bc == BidirectionalClasses.S "S"
+    elseif bc == BidirectionalClasses.WS "WS"
+    else error("No bc mathced: $bc")
+    end
+end
+
+function out_bool(b::Bool)::String
+    b ? "true" : "false"
+end
+
+function out_codepointset_or_nothing(cp_n::Union{Nothing, CodePointsSet})::String
+    if isnothing(cp_n)
+        "nothing"
+    else
+        out_codepoint(cp_n)
+    end
+end
+
+function out_BidiPairedBracketType(bpt::BidiPairedBracketType)::String
+    if bpt == BidiPairedBracketTypes.o
+        return "o"
+    elseif bpt == BidiPairedBracketTypes.c
+        return "c"
+    elseif bpt == BidiPairedBracketTypes.n
+        return "n"
+    else
+        error("No bpt matched: bpt = $bpt_str")
+    end
+end
+
+function out_BidirectionalProperties(bidi::BidirectionalProperties)::String
+    "UCDxml.BidirectionalProperties(" * join([
+        ("UCDxml.BidirectionalClasses." * out_BidirectionalClass(bidi.bc)),
+        out_bool(bidi.Bidi_M),
+        out_codepointset_or_nothing(bidi.bmg),
+        out_bool(bidi.Bidi_C),
+        ("UCDxml.BidiPairedBracketTypes." * out_BidiPairedBracketType(bidi.bpt)),
+        out_codepointset_or_nothing(bidi.bpb),
+    ], ", ") * ")"
 end
 
 ###############################################################
@@ -115,6 +180,7 @@ function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
             wrap_str(ucd.blk),
             ("UCDxml.GeneralCategories." * out_general_category(ucd.gc)),
             out_ccc(ucd.ccc),
+            out_BidirectionalProperties(ucd.bidi),
             ], ", "),
         ")",
     )
