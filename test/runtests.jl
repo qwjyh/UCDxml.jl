@@ -105,6 +105,10 @@ using Test
     end
 
     @testset "Exported result check" begin
-        @test UCDxml.ucd_list[1] == ucd_repertoire[1]
+        @testset "Check all hardcoded data is correct" begin
+            for (raw_ucd, hardcoded_ucd) in zip(ucd_repertoire, UCDxml.ucd_list)
+                @test raw_ucd == hardcoded_ucd
+            end
+        end
     end
 end
