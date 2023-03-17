@@ -288,6 +288,30 @@ struct DecompositionProperties <: Property
 end
 
 
+# numeric properties 4.4.9
+module NumericTypes
+export NumericType
+@enum NumericType begin
+    None
+    De
+    Di
+    Nu
+end
+end
+using .NumericTypes
+
+"""
+# Fields
+- `nt`: numeric type (enum)
+- `nv`: numeric value(NaN or fractional(Rational))
+"""
+struct NumericProperties
+    nt::NumericType
+    nv::Real
+end
+
+
+
 ###############################################################################################
 # main
 
@@ -330,7 +354,7 @@ struct UCDRepertoireNode
     ccc::UInt8 # Canonical Combining Class in Decimal
     bidi::BidirectionalProperties
     decomp::DecompositionProperties
-    # numeric::NumericProperties
+    numeric::NumericProperties
     # joining::JoiningProperties
     # lb::LineBreakProperties
     # ea::EastAsianWidth

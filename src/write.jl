@@ -220,6 +220,24 @@ function out_DecompositionProperties(decomp::DecompositionProperties)::String
 end
 
 ###############################################################
+# decomp
+function out_NumericType(nt::NumericType)::String
+    "UCDxml." * if nt == NumericTypes.None "NumericTypes.None"
+    elseif nt == NumericTypes.De "NumericTypes.De"
+    elseif nt == NumericTypes.Di "NumericTypes.Di"
+    elseif nt == NumericTypes.Nu "NumericTypes.Nu"
+    else error("No nt matched.")
+    end
+end
+
+function out_NumericProperties(numeric::NumericProperties)::String
+    "UCDxml.NumericProperties(" *
+        out_NumericType(numeric.nt) * ", " *
+        string(numeric.nv) * ", " *
+    ")"
+end
+
+###############################################################
 # main
 """
     function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
@@ -240,6 +258,7 @@ function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
             out_ccc(ucd.ccc),
             out_BidirectionalProperties(ucd.bidi),
             out_DecompositionProperties(ucd.decomp),
+            out_NumericProperties(ucd.numeric),
             ], ", "),
         ")",
     )

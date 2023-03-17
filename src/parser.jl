@@ -323,22 +323,38 @@ function get_DecompositionProperties(node::EzXML.Node)::DecompositionProperties
     )
 end
 
-# """
-# # Fields
-# - `nt`: numeric type (enum)
-# - `nv`: numeric value {"NaN" | xsd:string { pattern = "-?[0-9]+(/[0-9]+)?" }}?
-# """
-# struct NumericProperties
-#     nt::NumericType
-#     nv::String
-# end
+# numeric properties
+function get_NumericType(node::EzXML.Node)::NumericType
+    nt_str = ""
+    try
+        nt_str = node["nt"]
+    catch
+        error("Failed to get nt.")
+    end
+    if nt_str == "None" NumericTypes.None
+    elseif nt_str == "De" NumericTypes.De
+    elseif nt_str == "Di" NumericTypes.Di
+    elseif nt_str == "Nu" NumericTypes.Nu
+    else error("No nt matched: $nt_str")
+    end
+end
 
-# @enum NumericType begin
-#     None
-#     De
-#     Di
-#     Nu
-# end
+function get_numericvalue(node::EzXML.Node)::Real
+    nv_str = ""
+    try
+        nv_str = node["nv"]
+    catch
+        error("Failed to get nv.")
+    end
+    nv_str |> x -> replace(x, "/" => "//") |> Meta.parse |> eval
+end
+
+function get_NumericProperties(node::EzXML.Node)::NumericProperties
+    return NumericProperties(
+        get_NumericType(node),
+        get_numericvalue(node)
+    )
+end
 
 # """
 # # Fields
@@ -532,6 +548,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     ccc = get_ccc(node)
     bidi = get_bidirectional_properties(node)
     decomp = get_DecompositionProperties(node)
+    numeric = get_NumericProperties(node)
 
     return UCDRepertoireNode(
         type,
@@ -545,6 +562,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
         ccc,
         bidi,
         decomp,
+        numeric,
     )
 end
 
