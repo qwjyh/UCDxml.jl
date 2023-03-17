@@ -4,11 +4,13 @@ import EzXML
 
 ##############################################################
 # code point set
+function parse_singlecodepoint(str::AbstractString)::SingleCodePoint
+    SingleCodePoint(parse(UInt32, str, base = 16))
+end
 
 function get_codepoint(node::EzXML.Node)::CodePointsSet
     cps = try
-        cp = parse(UInt32, node["cp"], base = 16)
-        SingleCodePoint(cp)
+        parse_singlecodepoint(node["cp"])
     catch
         first = parse(UInt32, node["first-cp"], base = 16)
         last = parse(UInt32, node["last-cp"], base = 16)
@@ -156,6 +158,7 @@ function get_ccc(node::EzXML.Node)::UInt8
     end
 end
 
+# bidi
 function get_bidirectional_class(node::EzXML.Node)::BidirectionalClass
     bc_str = String("")
     try
@@ -209,10 +212,9 @@ function get_codepointset_or_nothing(node::EzXML.Node, key::String)::Union{Nothi
     else
         if node[key] == "#" # this points itself
             # TODO: performance issue?
-            # TODO: could be RangeCodePoint?
             return get_codepoint(node)
         else
-            return SingleCodePoint(parse(UInt32, node[key], base = 16)) # TODO: no error handling
+            return parse_singlecodepoint(node[key]) # TODO: no error handling
         end
     end
 end
@@ -246,49 +248,80 @@ function get_bidirectional_properties(node::EzXML.Node)::BidirectionalProperties
     )
 end
 
+# decomposition
+function get_DecompositionType(node::EzXML.Node)::DecompositionType
+    dt_str = node["dt"]  # try catch?
+    if dt_str == "can" DecompositionTypes.can
+    elseif dt_str == "com" DecompositionTypes.com
+    elseif dt_str == "enc" DecompositionTypes.enc
+    elseif dt_str == "fin" DecompositionTypes.fin
+    elseif dt_str == "font" DecompositionTypes.font
+    elseif dt_str == "fra" DecompositionTypes.fra
+    elseif dt_str == "init" DecompositionTypes.init
+    elseif dt_str == "iso" DecompositionTypes.iso
+    elseif dt_str == "med" DecompositionTypes.med
+    elseif dt_str == "nar" DecompositionTypes.nar
+    elseif dt_str == "nb" DecompositionTypes.nb
+    elseif dt_str == "sml" DecompositionTypes.sml
+    elseif dt_str == "sqr" DecompositionTypes.sqr
+    elseif dt_str == "sub" DecompositionTypes.sub
+    elseif dt_str == "sup" DecompositionTypes.sup
+    elseif dt_str == "vert" DecompositionTypes.vert
+    elseif dt_str == "wide" DecompositionTypes.wide
+    elseif dt_str == "none" DecompositionTypes.none
+    else error("No dt matched: dt = $dt_str")
+    end
+end
 
+function get_singlecodepoint_vec_from_str(node::EzXML.Node, key::String)::Union{CodePointsSet, Vector{SingleCodePoint}}
+    str = ""
+    try
+        str = node[key]
+    catch
+        error("Failed to get str.")
+    end
+    if str == "#"
+        return get_codepoint(node)
+    else
+        return split(str, " ") .|> parse_singlecodepoint
+    end
+end
 
+function get_QuickCheckProperty(node::EzXML.Node, key::String)::QuickCheckProperty
+    str = ""
+    try
+        str = node[key]
+    catch
+        error("Failed to get str of key $key")
+    end
+    if str == "Y"
+        return QuickCheckProperties.Yes
+    elseif str == "N"
+        return QuickCheckProperties.No
+    elseif str == "M"
+        return QuickCheckProperties.Maybe
+    else
+        error("No qc property matched: $str")
+    end
+end
 
-# """
-# # Fields
-# - `dt`: decomposition type (enum)
-# - `dm`: mapping (Nothing or Vec of SingleCodePoint)
-# - `CE`: composition exclusion
-# - `Comp_Ex`: full composition exclusion
-# - `NFC_QC`: NFC_Quick_Check
-# - `NFD_QC`: NFD_Quick_Check
-# - `NFKC_QC`: NFKC_Quick_Check
-# - `NFKD_QC`: NFKD_Quick_Check
-# - `XO_NFC`: Expands_On_NFC
-# - `XO_NFD`: Expands_On_NFD
-# - `XO_NFKD`: Expands_On_NFKD
-# - `XO_NFKC`: Expands_On_NFKC
-# - `FC_NFKC`: FC_NFKC_Closure
-# """
-# struct DecompositionProperties
-#     dt::DecompositionType
-#     dm::Union{Nothing, Vector{SingleCodePoint}}
-#     CE::Bool
-#     Comp_Ex::Bool
-#     NFC_QC::YNM
-#     NFD_QC::YN
-#     NFKC_QC::YNM
-#     NFKD_QC::YN
-#     XO_NFC::Bool
-#     XO_NFD::Bool
-#     XO_NFKC::Bool
-#     XO_NFKD::Bool
-#     FC_NFKC::Union{Nothing, Vector{SingleCodePoint}}
-# end
-
-# @enum DecompositionType begin
-#     can; con; enc; fin; font; fra;
-#     init; iso; med; nar; nb; smi;
-#     sqr; sub; sup; vert; wide; none;
-# end
-
-# @enum YNM YMN_Yes YMN_No YMN_Maybe
-# @enum YN YN_Yes YN_No
+function get_DecompositionProperties(node::EzXML.Node)::DecompositionProperties
+    return DecompositionProperties(
+        get_DecompositionType(node),
+        get_singlecodepoint_vec_from_str(node, "dm"),
+        get_bool(node, "CE"),
+        get_bool(node, "Comp_Ex"),
+        get_QuickCheckProperty(node, "NFC_QC"),
+        get_QuickCheckProperty(node, "NFD_QC"),
+        get_QuickCheckProperty(node, "NFKC_QC"),
+        get_QuickCheckProperty(node, "NFKD_QC"),
+        get_bool(node, "XO_NFC"),
+        get_bool(node, "XO_NFD"),
+        get_bool(node, "XO_NFKC"),
+        get_bool(node, "XO_NFKD"),
+        get_singlecodepoint_vec_from_str(node, "FC_NFKC")
+    )
+end
 
 # """
 # # Fields
@@ -498,6 +531,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     gc = get_generalcategory(node)
     ccc = get_ccc(node)
     bidi = get_bidirectional_properties(node)
+    decomp = get_DecompositionProperties(node)
 
     return UCDRepertoireNode(
         type,
@@ -510,6 +544,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
         gc,
         ccc,
         bidi,
+        decomp,
     )
 end
 

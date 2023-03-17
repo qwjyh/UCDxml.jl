@@ -146,7 +146,7 @@ function out_BidiPairedBracketType(bpt::BidiPairedBracketType)::String
     elseif bpt == BidiPairedBracketTypes.n
         return "n"
     else
-        error("No bpt matched: bpt = $bpt_str")
+        error("No bpt matched: bpt = $bpt")
     end
 end
 
@@ -158,6 +158,64 @@ function out_BidirectionalProperties(bidi::BidirectionalProperties)::String
         out_bool(bidi.Bidi_C),
         ("UCDxml.BidiPairedBracketTypes." * out_BidiPairedBracketType(bidi.bpt)),
         out_codepointset_or_nothing(bidi.bpb),
+    ], ", ") * ")"
+end
+
+###############################################################
+# decomp
+function out_DecompositionType(dt::DecompositionType)::String
+    if dt == DecompositionTypes.can "can"
+    elseif dt == DecompositionTypes.com "com"
+    elseif dt == DecompositionTypes.enc "enc"
+    elseif dt == DecompositionTypes.fin "fin"
+    elseif dt == DecompositionTypes.font "font"
+    elseif dt == DecompositionTypes.fra "fra"
+    elseif dt == DecompositionTypes.init "init"
+    elseif dt == DecompositionTypes.iso "iso"
+    elseif dt == DecompositionTypes.med "med"
+    elseif dt == DecompositionTypes.nar "nar"
+    elseif dt == DecompositionTypes.nb "nb"
+    elseif dt == DecompositionTypes.sml "sml"
+    elseif dt == DecompositionTypes.sqr "sqr"
+    elseif dt == DecompositionTypes.sub "sub"
+    elseif dt == DecompositionTypes.sup "sup"
+    elseif dt == DecompositionTypes.vert "vert"
+    elseif dt == DecompositionTypes.wide "wide"
+    elseif dt == DecompositionTypes.none "none"
+    else error("No dt matched: dt = $dt")
+    end
+end
+
+function out_singlecodepoint_vec_or_cpset(cps::CodePointsSet)::String
+    out_codepoint(cps)
+end
+function out_singlecodepoint_vec_or_cpset(cps::Vector{SingleCodePoint})::String
+    "[" * join(map(out_codepoint, cps), ", ") * "]"
+end
+
+function out_QuickCheckProperty(qcp::QuickCheckProperty)::String
+    if qcp == QuickCheckProperties.Yes "UCDxml.QuickCheckProperties.Yes"
+    elseif qcp == QuickCheckProperties.No "UCDxml.QuickCheckProperties.No"
+    elseif qcp == QuickCheckProperties.Maybe "UCDxml.QuickCheckProperties.Maybe"
+    else error("No QuickCheckProperties matched: $qcp")
+    end
+end
+
+function out_DecompositionProperties(decomp::DecompositionProperties)::String
+    "UCDxml.DecompositionProperties(" * join([
+        ("UCDxml.DecompositionTypes." * out_DecompositionType(decomp.dt)),
+        out_singlecodepoint_vec_or_cpset(decomp.dm),
+        out_bool(decomp.CE),
+        out_bool(decomp.Comp_Ex),
+        out_QuickCheckProperty(decomp.NFC_QC),
+        out_QuickCheckProperty(decomp.NFD_QC),
+        out_QuickCheckProperty(decomp.NFKC_QC),
+        out_QuickCheckProperty(decomp.NFKD_QC),
+        out_bool(decomp.XO_NFC),
+        out_bool(decomp.XO_NFD),
+        out_bool(decomp.XO_NFKC),
+        out_bool(decomp.XO_NFKD),
+        out_singlecodepoint_vec_or_cpset(decomp.FC_NFKC),
     ], ", ") * ")"
 end
 
@@ -181,6 +239,7 @@ function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
             ("UCDxml.GeneralCategories." * out_general_category(ucd.gc)),
             out_ccc(ucd.ccc),
             out_BidirectionalProperties(ucd.bidi),
+            out_DecompositionProperties(ucd.decomp),
             ], ", "),
         ")",
     )

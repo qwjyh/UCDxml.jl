@@ -22,6 +22,7 @@ using Test
         UCDxml.GeneralCategories.Cc,
         UInt8(0),
         UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.BN, false, nothing, false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x0))),
+        UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x0)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x0))),
     )
     """
     char_0x0000 = eval(Meta.parse(char_0x0000_code))
@@ -43,6 +44,7 @@ using Test
             UCDxml.GeneralCategories.Cc,
             UInt8(0),
             UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.BN, false, nothing, false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x0))),
+            UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x0)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x0))),
         ) == char_0x0000
     end
 
@@ -59,6 +61,7 @@ using Test
             UCDxml.GeneralCategories.Cc,
             UInt8(0),
             UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.BN, false, nothing, false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x0))),
+            UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x0)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x0))),
         )
         # CJK ideograph
         # na should be replaced with its cp
@@ -74,6 +77,7 @@ using Test
             UCDxml.GeneralCategories.Lo,
             UInt8(0),
             UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.L, false, nothing, false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x3402))),
+            UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x3402)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x3402))),
         )
     end
 

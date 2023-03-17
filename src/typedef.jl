@@ -212,7 +212,7 @@ using .BidiPairedBracketTypes
 - `bpt`: bidi paired bracket type (enum)
 - `bpb`: bidi paired bracket properties
 """
-struct BidirectionalProperties
+struct BidirectionalProperties <: Property
     bc::BidirectionalClass
     Bidi_M::Bool
     bmg::Union{Nothing, CodePointsSet}
@@ -220,6 +220,73 @@ struct BidirectionalProperties
     bpt::BidiPairedBracketType
     bpb::Union{Nothing, CodePointsSet}
 end
+
+# decomposition properties
+"DecompositionType enum"
+module DecompositionTypes
+export DecompositionType
+
+# TODO: use full name?
+"see Table 14. of UAX#44 https://www.unicode.org/reports/tr44/#Character_Decomposition_Mappings"
+@enum DecompositionType begin
+    can; com; enc; fin; font; fra;
+    init; iso; med; nar; nb; sml;
+    sqr; sub; sup; vert; wide; none;
+end
+
+end
+
+using .DecompositionTypes
+
+"QuickCheckProperty enum"
+module QuickCheckProperties
+export QuickCheckProperty
+
+"""
+Defined in "5.7.5 Decomposition and Normalization" of UAX#44.
+"""
+@enum QuickCheckProperty begin
+    No
+    Maybe
+    Yes
+end
+
+end
+
+using .QuickCheckProperties
+
+"""
+# Fields
+- `dt`: decomposition type (enum)
+- `dm`: mapping (Nothing or Vec of SingleCodePoint)
+- `CE`: composition exclusion
+- `Comp_Ex`: full composition exclusion
+- `NFC_QC`: NFC_Quick_Check
+- `NFD_QC`: NFD_Quick_Check
+- `NFKC_QC`: NFKC_Quick_Check
+- `NFKD_QC`: NFKD_Quick_Check
+- `XO_NFC`: Expands_On_NFC
+- `XO_NFD`: Expands_On_NFD
+- `XO_NFKD`: Expands_On_NFKD
+- `XO_NFKC`: Expands_On_NFKC
+- `FC_NFKC`: FC_NFKC_Closure
+"""
+struct DecompositionProperties <: Property
+    dt::DecompositionType
+    dm::Union{CodePointsSet, Vector{SingleCodePoint}}
+    CE::Bool
+    Comp_Ex::Bool
+    NFC_QC::QuickCheckProperty
+    NFD_QC::QuickCheckProperty
+    NFKC_QC::QuickCheckProperty
+    NFKD_QC::QuickCheckProperty
+    XO_NFC::Bool
+    XO_NFD::Bool
+    XO_NFKC::Bool
+    XO_NFKD::Bool
+    FC_NFKC::Union{CodePointsSet, Vector{SingleCodePoint}}
+end
+
 
 ###############################################################################################
 # main
@@ -262,7 +329,7 @@ struct UCDRepertoireNode
     gc::GeneralCategory
     ccc::UInt8 # Canonical Combining Class in Decimal
     bidi::BidirectionalProperties
-    # decomp::DecompositionProperties
+    decomp::DecompositionProperties
     # numeric::NumericProperties
     # joining::JoiningProperties
     # lb::LineBreakProperties
