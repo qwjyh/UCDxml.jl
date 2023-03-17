@@ -220,7 +220,7 @@ function out_DecompositionProperties(decomp::DecompositionProperties)::String
 end
 
 ###############################################################
-# decomp
+# numeric
 function out_NumericType(nt::NumericType)::String
     "UCDxml." * if nt == NumericTypes.None "NumericTypes.None"
     elseif nt == NumericTypes.De "NumericTypes.De"
@@ -234,6 +234,27 @@ function out_NumericProperties(numeric::NumericProperties)::String
     "UCDxml.NumericProperties(" *
         out_NumericType(numeric.nt) * ", " *
         string(numeric.nv) * ", " *
+    ")"
+end
+
+###############################################################
+# joining
+function out_JoiningType(jt::JoiningType)::String
+    "UCDxml." * if jt == JoiningTypes.U "JoiningTypes.U"
+    elseif jt == JoiningTypes.C "JoiningTypes.C"
+    elseif jt == JoiningTypes.T "JoiningTypes.T"
+    elseif jt == JoiningTypes.D "JoiningTypes.D"
+    elseif jt == JoiningTypes.L "JoiningTypes.L"
+    elseif jt == JoiningTypes.R "JoiningTypes.R"
+    else error("No jt matched.")
+    end
+end
+
+function out_JoiningProperties(joining::JoiningProperties)::String
+    "UCDxml.JoiningProperties(" *
+        out_JoiningType(joining.jt) * ", " *
+        wrap_str(joining.jg) * ", " *
+        out_bool(joining.Join_C) * ", " *
     ")"
 end
 
@@ -259,6 +280,7 @@ function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
             out_BidirectionalProperties(ucd.bidi),
             out_DecompositionProperties(ucd.decomp),
             out_NumericProperties(ucd.numeric),
+            out_JoiningProperties(ucd.joining),
             ], ", "),
         ")",
     )

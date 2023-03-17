@@ -356,18 +356,31 @@ function get_NumericProperties(node::EzXML.Node)::NumericProperties
     )
 end
 
-# """
-# # Fields
-# - `jt`: joining class
-# - `jg`: joining group
-# - `Join_C`: Join_Control
-# """
-# struct JoiningProperties
-#     jt::JoiningType
-#     jg::String
-#     Join_C::Bool
-# end
-# @enum JoiningType U C T D L R
+# joining properties
+function get_JoiningType(node::EzXML.Node)::JoiningType
+    jt_str = ""
+    try
+        jt_str = node["jt"]
+    catch
+        error("Failed to get jt.")
+    end
+    if jt_str == "U" JoiningTypes.U
+    elseif jt_str == "C" JoiningTypes.C
+    elseif jt_str == "T" JoiningTypes.T
+    elseif jt_str == "D" JoiningTypes.D
+    elseif jt_str == "L" JoiningTypes.L
+    elseif jt_str == "R" JoiningTypes.R
+    else error("No jt matched: $jt_str")
+    end
+end
+
+function get_JoiningProperties(node::EzXML.Node)::JoiningProperties
+    return JoiningProperties(
+        get_JoiningType(node),
+        node["jg"],
+        get_bool(node, "Join_C")
+    )
+end
 
 
 # "Line_Break property"
@@ -549,6 +562,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     bidi = get_bidirectional_properties(node)
     decomp = get_DecompositionProperties(node)
     numeric = get_NumericProperties(node)
+    joining = get_JoiningProperties(node)
 
     return UCDRepertoireNode(
         type,
@@ -563,6 +577,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
         bidi,
         decomp,
         numeric,
+        joining,
     )
 end
 

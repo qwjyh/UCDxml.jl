@@ -310,6 +310,52 @@ struct NumericProperties
     nv::Real
 end
 
+# joining properties 4.4.10
+
+module JoiningTypes
+export JoiningType
+
+"""
+    @enum JoiningType begin
+        U # Non_Joining
+        C # Join_Causing
+        T # Transparent
+        D # Dual_Joining
+        L # Left_Joining
+        R # Right_Joining
+    end
+
+from Table 9-3 of Unicode
+https://www.unicode.org/versions/Unicode15.0.0/ch09.pdf
+"""
+@enum JoiningType begin
+    U # Non_Joining
+    C # Join_Causing
+    T # Transparent
+    D # Dual_Joining
+    L # Left_Joining
+    R # Right_Joining
+end
+
+end
+using .JoiningTypes
+
+
+"""
+Basic Arabic and Syriac character shaping properties, such as initial, medial and final shapes. 
+See Section 9.2, Arabic in [Unicode].
+
+# Fields
+- `jt`: joining class
+- `jg`: joining group
+- `Join_C`: Join_Control
+"""
+struct JoiningProperties
+    jt::JoiningType
+    jg::String
+    Join_C::Bool
+end
+
 
 
 ###############################################################################################
@@ -355,7 +401,7 @@ struct UCDRepertoireNode
     bidi::BidirectionalProperties
     decomp::DecompositionProperties
     numeric::NumericProperties
-    # joining::JoiningProperties
+    joining::JoiningProperties
     # lb::LineBreakProperties
     # ea::EastAsianWidth
     # sc::Script

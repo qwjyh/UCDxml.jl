@@ -27,7 +27,8 @@ xml_path = full_test ? "../deps/ucd.all.flat.xml" : "../deps/small.xml"
         UInt8(0),
         UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.BN, false, nothing, false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x0))),
         UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x0)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x0))),
-        UCDxml.NumericProperties(UCDxml.NumericTypes.None, NaN)
+        UCDxml.NumericProperties(UCDxml.NumericTypes.None, NaN),
+        UCDxml.JoiningProperties(UCDxml.JoiningTypes.U, "No_Joining_Group", false),
     )
     """
     char_0x0000 = eval(Meta.parse(char_0x0000_code))
@@ -60,7 +61,8 @@ xml_path = full_test ? "../deps/ucd.all.flat.xml" : "../deps/small.xml"
                 UInt8(0),
                 UCDxml.BidirectionalProperties(UCDxml.BidirectionalClasses.L, false, nothing, false, UCDxml.BidiPairedBracketTypes.n, UCDxml.SingleCodePoint(UInt32(0x3402))),
                 UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x3402)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x3402))),
-                UCDxml.NumericProperties(UCDxml.NumericTypes.None, NaN)
+                UCDxml.NumericProperties(UCDxml.NumericTypes.None, NaN),
+                UCDxml.JoiningProperties(UCDxml.JoiningTypes.U, "No_Joining_Group", false),
             )
         end
     end
