@@ -6,6 +6,6 @@ repertoire = elements(elements(xml.root)[2])
 
 len_repertoire = length(repertoire)
 
-filter(x -> rand() > 0.05, repertoire) .|> EzXML.unlink!
+filter(x -> rand() > 0.05, repertoire[2:end]) .|> EzXML.unlink!
 
 write("small.xml", xml)

@@ -36,4 +36,16 @@ include("../src/write.jl")
 
 end
 # 2.2 execute write_ucd_coded
-UCDxml.write_ucd_coded(; source_path = "../deps/ucd.all.flat.xml", out_path = "../src/ucd_coded.jl")
+# for small test
+fulltest = !haskey(ENV, "SMALL_TEST")
+if !fulltest
+    println("small test")
+end
+# generate small test case if there is not
+if !fulltest && !isfile("small.xml")
+    println("'small.xml' not found. generating...")
+    include("gen_small_testcase.jl")
+else
+    println("'small.xml' already exits.")
+end
+UCDxml.write_ucd_coded(; source_path = fulltest ? "../deps/ucd.all.flat.xml" : "../deps/small.xml", out_path = "../src/ucd_coded.jl")
