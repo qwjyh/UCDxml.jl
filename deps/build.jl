@@ -15,13 +15,16 @@ TODO: #7 using Pkg.Artifacts or Scratch?
 using Downloads, ZipFile
 
 # 1. Download
-zip_archive = Downloads.download("https://www.unicode.org/Public/UCD/latest/ucdxml/ucd.all.flat.zip")
-r = ZipFile.Reader(zip_archive)
-open("ucd.all.flat.xml", "w") do io
-    write(io, read(r.files[1], String))
+# TODO: #12 hash check
+if !isfile("ucd.all.flat.xml")
+    zip_archive = Downloads.download("https://www.unicode.org/Public/UCD/latest/ucdxml/ucd.all.flat.zip")
+    r = ZipFile.Reader(zip_archive)
+    open("ucd.all.flat.xml", "w") do io
+        write(io, read(r.files[1], String))
+    end
+    println(pwd())
+    close(r)
 end
-println(pwd())
-close(r)
 
 # 2. write
 # 2.1 build temporary UCDxml module
