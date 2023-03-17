@@ -382,28 +382,61 @@ function get_JoiningProperties(node::EzXML.Node)::JoiningProperties
     )
 end
 
+# linebreak properties
+function get_LineBreakProperty(node::EzXML.Node)::LineBreakProperty
+    lb_str = ""
+    try
+        lb_str = node["lb"]
+    catch
+        error("Failed to get lb.")
+    end
+    if lb_str == "AI" LineBreakProperties.AI
+    elseif lb_str == "AL" LineBreakProperties.AL
+    elseif lb_str == "B2" LineBreakProperties.B2
+    elseif lb_str == "BA" LineBreakProperties.BA
+    elseif lb_str == "BB" LineBreakProperties.BB
+    elseif lb_str == "BK" LineBreakProperties.BK
+    elseif lb_str == "CB" LineBreakProperties.CB
+    elseif lb_str == "CJ" LineBreakProperties.CJ
+    elseif lb_str == "CL" LineBreakProperties.CL
+    elseif lb_str == "CM" LineBreakProperties.CM
+    elseif lb_str == "CP" LineBreakProperties.CP
+    elseif lb_str == "CR" LineBreakProperties.CR
+    elseif lb_str == "EB" LineBreakProperties.EB
+    elseif lb_str == "EM" LineBreakProperties.EM
+    elseif lb_str == "EX" LineBreakProperties.EX
+    elseif lb_str == "GL" LineBreakProperties.GL
+    elseif lb_str == "H2" LineBreakProperties.H2
+    elseif lb_str == "H3" LineBreakProperties.H3
+    elseif lb_str == "HL" LineBreakProperties.HL
+    elseif lb_str == "HY" LineBreakProperties.HY
+    elseif lb_str == "ID" LineBreakProperties.ID
+    elseif lb_str == "IN" LineBreakProperties.IN
+    elseif lb_str == "IS" LineBreakProperties.IS
+    elseif lb_str == "JL" LineBreakProperties.JL
+    elseif lb_str == "JT" LineBreakProperties.JT
+    elseif lb_str == "JV" LineBreakProperties.JV
+    elseif lb_str == "LF" LineBreakProperties.LF
+    elseif lb_str == "NL" LineBreakProperties.NL
+    elseif lb_str == "NS" LineBreakProperties.NS
+    elseif lb_str == "NU" LineBreakProperties.NU
+    elseif lb_str == "OP" LineBreakProperties.OP
+    elseif lb_str == "PO" LineBreakProperties.PO
+    elseif lb_str == "PR" LineBreakProperties.PR
+    elseif lb_str == "QU" LineBreakProperties.QU
+    elseif lb_str == "RI" LineBreakProperties.RI
+    elseif lb_str == "SA" LineBreakProperties.SA
+    elseif lb_str == "SG" LineBreakProperties.SG
+    elseif lb_str == "SP" LineBreakProperties.SP
+    elseif lb_str == "SY" LineBreakProperties.SY
+    elseif lb_str == "WJ" LineBreakProperties.WJ
+    elseif lb_str == "XX" LineBreakProperties.XX
+    elseif lb_str == "ZW" LineBreakProperties.ZW
+    elseif lb_str == "ZWJ" LineBreakProperties.ZWJ
+    else error("No lb matched: $lb_str")
+    end
+end
 
-# "Line_Break property"
-# @enum LineBreakProperties begin
-#     AI; AL;
-#     B2; BA; BB; BK;
-#     CB; CJ; CL; CM; CP; CR;
-#     EB; EM; EX;
-#     GL;
-#     H2; H3; HL; HY;
-#     ID; IN; IS;
-#     JL; JT; JV;
-#     LF;
-#     NL; NS; NU;
-#     OP;
-#     PO; PR;
-#     QU;
-#     RI;
-#     SA; SG; SP; SY;
-#     WJ;
-#     XX;
-#     ZW; ZWJ;
-# end
 
 # @enum EastAsianWidth begin
 #     A; F; H; N; Na; W;
@@ -563,6 +596,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     decomp = get_DecompositionProperties(node)
     numeric = get_NumericProperties(node)
     joining = get_JoiningProperties(node)
+    lb = get_LineBreakProperty(node)
 
     return UCDRepertoireNode(
         type,
@@ -578,6 +612,7 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
         decomp,
         numeric,
         joining,
+        lb,
     )
 end
 

@@ -259,6 +259,56 @@ function out_JoiningProperties(joining::JoiningProperties)::String
 end
 
 ###############################################################
+# lb
+function out_LineBreakProperty(lb::LineBreakProperty)::String
+    "UCDxml." * if lb == LineBreakProperties.AI "LineBreakProperties.AI"
+    elseif lb == LineBreakProperties.AL "LineBreakProperties.AL"
+    elseif lb == LineBreakProperties.B2 "LineBreakProperties.B2"
+    elseif lb == LineBreakProperties.BA "LineBreakProperties.BA"
+    elseif lb == LineBreakProperties.BB "LineBreakProperties.BB"
+    elseif lb == LineBreakProperties.BK "LineBreakProperties.BK"
+    elseif lb == LineBreakProperties.CB "LineBreakProperties.CB"
+    elseif lb == LineBreakProperties.CJ "LineBreakProperties.CJ"
+    elseif lb == LineBreakProperties.CL "LineBreakProperties.CL"
+    elseif lb == LineBreakProperties.CM "LineBreakProperties.CM"
+    elseif lb == LineBreakProperties.CP "LineBreakProperties.CP"
+    elseif lb == LineBreakProperties.CR "LineBreakProperties.CR"
+    elseif lb == LineBreakProperties.EB "LineBreakProperties.EB"
+    elseif lb == LineBreakProperties.EM "LineBreakProperties.EM"
+    elseif lb == LineBreakProperties.EX "LineBreakProperties.EX"
+    elseif lb == LineBreakProperties.GL "LineBreakProperties.GL"
+    elseif lb == LineBreakProperties.H2 "LineBreakProperties.H2"
+    elseif lb == LineBreakProperties.H3 "LineBreakProperties.H3"
+    elseif lb == LineBreakProperties.HL "LineBreakProperties.HL"
+    elseif lb == LineBreakProperties.HY "LineBreakProperties.HY"
+    elseif lb == LineBreakProperties.ID "LineBreakProperties.ID"
+    elseif lb == LineBreakProperties.IN "LineBreakProperties.IN"
+    elseif lb == LineBreakProperties.IS "LineBreakProperties.IS"
+    elseif lb == LineBreakProperties.JL "LineBreakProperties.JL"
+    elseif lb == LineBreakProperties.JT "LineBreakProperties.JT"
+    elseif lb == LineBreakProperties.JV "LineBreakProperties.JV"
+    elseif lb == LineBreakProperties.LF "LineBreakProperties.LF"
+    elseif lb == LineBreakProperties.NL "LineBreakProperties.NL"
+    elseif lb == LineBreakProperties.NS "LineBreakProperties.NS"
+    elseif lb == LineBreakProperties.NU "LineBreakProperties.NU"
+    elseif lb == LineBreakProperties.OP "LineBreakProperties.OP"
+    elseif lb == LineBreakProperties.PO "LineBreakProperties.PO"
+    elseif lb == LineBreakProperties.PR "LineBreakProperties.PR"
+    elseif lb == LineBreakProperties.QU "LineBreakProperties.QU"
+    elseif lb == LineBreakProperties.RI "LineBreakProperties.RI"
+    elseif lb == LineBreakProperties.SA "LineBreakProperties.SA"
+    elseif lb == LineBreakProperties.SG "LineBreakProperties.SG"
+    elseif lb == LineBreakProperties.SP "LineBreakProperties.SP"
+    elseif lb == LineBreakProperties.SY "LineBreakProperties.SY"
+    elseif lb == LineBreakProperties.WJ "LineBreakProperties.WJ"
+    elseif lb == LineBreakProperties.XX "LineBreakProperties.XX"
+    elseif lb == LineBreakProperties.ZW "LineBreakProperties.ZW"
+    elseif lb == LineBreakProperties.ZWJ "LineBreakProperties.ZWJ"
+    else error("No lb matched.")
+    end
+end
+
+###############################################################
 # main
 """
     function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
@@ -281,6 +331,7 @@ function write_repertoire(io::IO, ucd::UCDRepertoireNode)::Nothing
             out_DecompositionProperties(ucd.decomp),
             out_NumericProperties(ucd.numeric),
             out_JoiningProperties(ucd.joining),
+            out_LineBreakProperty(ucd.lb),
             ], ", "),
         ")",
     )

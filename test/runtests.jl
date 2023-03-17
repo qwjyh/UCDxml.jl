@@ -29,6 +29,7 @@ xml_path = full_test ? "../deps/ucd.all.flat.xml" : "../deps/small.xml"
         UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x0)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x0))),
         UCDxml.NumericProperties(UCDxml.NumericTypes.None, NaN),
         UCDxml.JoiningProperties(UCDxml.JoiningTypes.U, "No_Joining_Group", false),
+        UCDxml.LineBreakProperties.CM,
     )
     """
     char_0x0000 = eval(Meta.parse(char_0x0000_code))
@@ -63,6 +64,7 @@ xml_path = full_test ? "../deps/ucd.all.flat.xml" : "../deps/small.xml"
                 UCDxml.DecompositionProperties(UCDxml.DecompositionTypes.none, UCDxml.SingleCodePoint(UInt32(0x3402)), false, false, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, UCDxml.QuickCheckProperties.Yes, false, false, false, false, UCDxml.SingleCodePoint(UInt32(0x3402))),
                 UCDxml.NumericProperties(UCDxml.NumericTypes.None, NaN),
                 UCDxml.JoiningProperties(UCDxml.JoiningTypes.U, "No_Joining_Group", false),
+                UCDxml.LineBreakProperties.ID,
             )
         end
     end

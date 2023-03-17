@@ -356,7 +356,37 @@ struct JoiningProperties
     Join_C::Bool
 end
 
+# linebreak properties
+module LineBreakProperties
+export LineBreakProperty
 
+"""
+Line_Break property.
+For details, see Table 1. of https://www.unicode.org/reports/tr14/
+"""
+@enum LineBreakProperty begin
+    AI; AL;
+    B2; BA; BB; BK;
+    CB; CJ; CL; CM; CP; CR;
+    EB; EM; EX;
+    GL;
+    H2; H3; HL; HY;
+    ID; IN; IS;
+    JL; JT; JV;
+    LF;
+    NL; NS; NU;
+    OP;
+    PO; PR;
+    QU;
+    RI;
+    SA; SG; SP; SY;
+    WJ;
+    XX;
+    ZW; ZWJ;
+end
+
+end
+using .LineBreakProperties
 
 ###############################################################################################
 # main
@@ -402,7 +432,7 @@ struct UCDRepertoireNode
     decomp::DecompositionProperties
     numeric::NumericProperties
     joining::JoiningProperties
-    # lb::LineBreakProperties
+    lb::LineBreakProperty
     # ea::EastAsianWidth
     # sc::Script
     # scx::Vector{Script}
