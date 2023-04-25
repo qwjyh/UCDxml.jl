@@ -616,9 +616,6 @@ function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     )
 end
 
-function Base.show(io::IO, r::UCDRepertoireNode)
-    dump(io, r)
-end
 
 function Base.:(==)(a::T, b::T) where T<:UCDRepertoireNode
     fv = fieldnames(T)

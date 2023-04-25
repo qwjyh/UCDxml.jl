@@ -111,4 +111,12 @@ xml_path = full_test ? "../deps/ucd.all.flat.xml" : "../deps/small.xml"
             end
         end
     end
+
+    @testset "Pretty-print test" begin
+        io = IOBuffer()
+        for ucd in UCDxml.ucd_list
+            @test show(io, "text/plain", ucd) == nothing
+        end
+        close(io)
+    end
 end

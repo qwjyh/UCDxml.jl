@@ -351,7 +351,7 @@ function write_ucd_coded(;source_path::String = "ucd.all.flat.xml", out_path::St
     ucd_repertoire = parse_xml(source_path)
     open(out_path, "w") do io
         # separate definition to avoid stack overflow
-        println(io, """
+        print(io, """
         \"""
             ucd_list::Vector{UCDxml.UCDRepertoireNode}
         
