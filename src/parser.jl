@@ -113,6 +113,7 @@ function get_generalcategory(node::EzXML.Node)::GeneralCategory
     catch
         error("Failed to get gc(General Category).")
     end
+    #! format: off
     if gc_str == "Lu" GeneralCategories.Lu
     elseif gc_str == "Ll" GeneralCategories.Ll
     elseif gc_str == "Lt" GeneralCategories.Lt
@@ -145,6 +146,7 @@ function get_generalcategory(node::EzXML.Node)::GeneralCategory
     elseif gc_str == "Cn" GeneralCategories.Cn
     else error("No gc matched \n gc = $gc_str")
     end
+    #! format: on
 end
 
 
@@ -166,6 +168,7 @@ function get_bidirectional_class(node::EzXML.Node)::BidirectionalClass
     catch
         error("Failed to get bc(Bidirectional Class).")
     end
+    #! format: off
     if bc_str == "AL" BidirectionalClasses.AL
     elseif bc_str == "AN" BidirectionalClasses.AN
     elseif bc_str == "B" BidirectionalClasses.B
@@ -191,6 +194,7 @@ function get_bidirectional_class(node::EzXML.Node)::BidirectionalClass
     elseif bc_str == "WS" BidirectionalClasses.WS
     else error("No bc matched: bc = $bc_str")
     end
+    #! format: on
 end
 
 """
@@ -251,6 +255,7 @@ end
 # decomposition
 function get_DecompositionType(node::EzXML.Node)::DecompositionType
     dt_str = node["dt"]  # try catch?
+    #! format: off
     if dt_str == "can" DecompositionTypes.can
     elseif dt_str == "com" DecompositionTypes.com
     elseif dt_str == "enc" DecompositionTypes.enc
@@ -271,6 +276,7 @@ function get_DecompositionType(node::EzXML.Node)::DecompositionType
     elseif dt_str == "none" DecompositionTypes.none
     else error("No dt matched: dt = $dt_str")
     end
+    #! format: on
 end
 
 function get_singlecodepoint_vec_from_str(node::EzXML.Node, key::String)::Union{CodePointsSet, Vector{SingleCodePoint}}
@@ -331,12 +337,14 @@ function get_NumericType(node::EzXML.Node)::NumericType
     catch
         error("Failed to get nt.")
     end
+    #! format: off
     if nt_str == "None" NumericTypes.None
     elseif nt_str == "De" NumericTypes.De
     elseif nt_str == "Di" NumericTypes.Di
     elseif nt_str == "Nu" NumericTypes.Nu
     else error("No nt matched: $nt_str")
     end
+    #! format: on
 end
 
 function get_numericvalue(node::EzXML.Node)::Real
@@ -364,6 +372,7 @@ function get_JoiningType(node::EzXML.Node)::JoiningType
     catch
         error("Failed to get jt.")
     end
+    #! format: off
     if jt_str == "U" JoiningTypes.U
     elseif jt_str == "C" JoiningTypes.C
     elseif jt_str == "T" JoiningTypes.T
@@ -372,6 +381,7 @@ function get_JoiningType(node::EzXML.Node)::JoiningType
     elseif jt_str == "R" JoiningTypes.R
     else error("No jt matched: $jt_str")
     end
+    #! format: on
 end
 
 function get_JoiningProperties(node::EzXML.Node)::JoiningProperties
@@ -390,6 +400,7 @@ function get_LineBreakProperty(node::EzXML.Node)::LineBreakProperty
     catch
         error("Failed to get lb.")
     end
+    #! format: off
     if lb_str == "AI" LineBreakProperties.AI
     elseif lb_str == "AL" LineBreakProperties.AL
     elseif lb_str == "B2" LineBreakProperties.B2
@@ -435,6 +446,7 @@ function get_LineBreakProperty(node::EzXML.Node)::LineBreakProperty
     elseif lb_str == "ZWJ" LineBreakProperties.ZWJ
     else error("No lb matched: $lb_str")
     end
+    #! format: on
 end
 
 

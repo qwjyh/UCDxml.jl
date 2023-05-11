@@ -12,11 +12,11 @@ Each codepoint value is `UInt32` (as it is expressed as hexadecimal number with 
 """
 abstract type CodePointsSet end
 struct SingleCodePoint <: CodePointsSet
-cp::UInt32
+    cp::UInt32
 end
 struct RangeCodePoint <: CodePointsSet
-first::UInt32
-last::UInt32
+    first::UInt32
+    last::UInt32
 end
 
 """
@@ -29,9 +29,9 @@ If ``cp \\leq \\mathrm{FFFF}``, digit is 4, else, digit is 6.
 function format(cp::SingleCodePoint)::String
     val = cp.cp # UTint32
     if val <= 0xFFFF
-        string(val, base=16, pad=4)
+        string(val, base = 16, pad = 4)
     else
-        string(val, base=16, pad=6)
+        string(val, base = 16, pad = 6)
     end
 end
 
@@ -55,7 +55,6 @@ CodePoint type enum.
     char
 end
 
-
 #################################################################
 # properties
 abstract type Property end
@@ -74,8 +73,8 @@ name alias
 - `type::String`: type of alias("abbreviation", "alternative", "control", "correction" or "figment")
 """
 struct NameAlias <: Property
-alias::String
-type::String
+    alias::String
+    type::String
 end
 
 # general category
@@ -160,7 +159,6 @@ end
 
 using .GeneralCategories
 
-
 # bidirectional properties
 
 """
@@ -170,6 +168,7 @@ module BidirectionalClasses
 
 export BidirectionalClass
 
+#! format: off
 @enum BidirectionalClass begin
     AL; AN;
     B; BN;
@@ -184,6 +183,7 @@ export BidirectionalClass
     S;
     WS;
 end
+#! format: on
 
 end
 
@@ -201,7 +201,6 @@ export BidiPairedBracketType
 end
 
 using .BidiPairedBracketTypes
-
 
 """
 # Fields
@@ -227,12 +226,14 @@ module DecompositionTypes
 export DecompositionType
 
 # TODO: use full name?
+#! format: off
 "see Table 14. of UAX#44 https://www.unicode.org/reports/tr44/#Character_Decomposition_Mappings"
 @enum DecompositionType begin
     can; com; enc; fin; font; fra;
     init; iso; med; nar; nb; sml;
     sqr; sub; sup; vert; wide; none;
 end
+#! format: on
 
 end
 
@@ -287,7 +288,6 @@ struct DecompositionProperties <: Property
     FC_NFKC::Union{CodePointsSet, Vector{SingleCodePoint}}
 end
 
-
 # numeric properties 4.4.9
 module NumericTypes
 export NumericType
@@ -340,7 +340,6 @@ end
 end
 using .JoiningTypes
 
-
 """
 Basic Arabic and Syriac character shaping properties, such as initial, medial and final shapes. 
 See Section 9.2, Arabic in [Unicode].
@@ -360,6 +359,7 @@ end
 module LineBreakProperties
 export LineBreakProperty
 
+#! format: off
 """
 Line_Break property.
 For details, see Table 1. of https://www.unicode.org/reports/tr14/
@@ -384,6 +384,7 @@ For details, see Table 1. of https://www.unicode.org/reports/tr14/
     XX;
     ZW; ZWJ;
 end
+#! format: on
 
 end
 using .LineBreakProperties

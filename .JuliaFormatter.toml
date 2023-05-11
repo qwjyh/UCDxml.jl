@@ -1,2 +1,2 @@
 style = "sciml"
-ignore = ["write.jl"]
+ignore = ["write.jl", "docs/make.jl"]

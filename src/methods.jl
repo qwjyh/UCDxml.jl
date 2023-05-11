@@ -22,9 +22,10 @@ Base.Char(ucd::UCDRepertoireNode)::Char = begin
     Char(ucd.cp)
 end
 
-Base.show(io::IO, ::MIME"text/plain", ucd::UCDRepertoireNode) = begin
+function Base.show(io::IO, ::MIME"text/plain", ucd::UCDRepertoireNode)
     name_string = ucd.na == "" ? ucd.na1 : ucd.na
-    name_alias_display = length(ucd.name_alias) == 0 ? "" : map(x -> x.alias, ucd.name_alias)
+    name_alias_display = length(ucd.name_alias) == 0 ? "" :
+                         map(x -> x.alias, ucd.name_alias)
     char_str = ""
     try
         char_str = " (" * Char(ucd.cp) * ")"
