@@ -1,17 +1,15 @@
 module UCDxml
 
 using EzXML
+
+# export ucd_repertoire
+
+include("typedef.jl")
 include("parser.jl")
+include("parse.jl")
+include("write.jl")
+include("methods.jl")
 
-export ucd_repertoire
-
-# use flat version, which doesn't use group mechanism
-ucd = readxml("deps/ucd.all.flat.xml")
-repertoire = elements(elements(ucd.root)[2])
-
-ucd_repertoire = map(
-    get_repertoire_info,
-    repertoire
-)
+include("ucd_coded.jl")
 
 end

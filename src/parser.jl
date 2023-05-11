@@ -1,27 +1,16 @@
+# parse xml
+
 import EzXML
 
 ##############################################################
 # code point set
-"""
-    abstract type CodePointsSet end
-
-There are two types of code point representation.
-`SingleCodePoint` and `RangeCodePoint` with `first` and `last` codepoint.
-Each codepoint value is `UInt32` (as it is expressed as hexadecimal number with four to six digits, ie. minimum is `0x0000` and maximum is `0xFFFFFF`(UAX#44 #4.2.2))
-"""
-abstract type CodePointsSet end
-struct SingleCodePoint <: CodePointsSet
-    cp::UInt32
-end
-struct RangeCodePoint <: CodePointsSet
-    first::UInt32
-    last::UInt32
+function parse_singlecodepoint(str::AbstractString)::SingleCodePoint
+    SingleCodePoint(parse(UInt32, str, base = 16))
 end
 
 function get_codepoint(node::EzXML.Node)::CodePointsSet
     cps = try
-        cp = parse(UInt32, node["cp"], base = 16)
-        SingleCodePoint(cp)
+        parse_singlecodepoint(node["cp"])
     catch
         first = parse(UInt32, node["first-cp"], base = 16)
         last = parse(UInt32, node["last-cp"], base = 16)
@@ -38,27 +27,11 @@ function Base.:(==)(a::T, b::T) where T<:RangeCodePoint
     a.first == b.first && a.last == b.last
 end
 
+
 ###############################################################
 # code point type
 
-"""
-    @enum CodePointType begin
-        reserved
-        noncharacter
-        surrogate
-        char
-    end
-
-CodePoint type enum.
-"""
-@enum CodePointType begin
-    reserved
-    noncharacter
-    surrogate
-    char
-end
-
-function get_codepointtype(node::EzXML.Node)
+function get_codepointtype(node::EzXML.Node)::CodePointType
     nodename = EzXML.nodename(node)
     if nodename == "char"
         return char
@@ -77,31 +50,38 @@ end
 
 #################################################################
 # properties
-abstract type Property end
+
+# age
+function get_age(node::EzXML.Node)::String
+    return node["age"]
+end
 
 # name
-function get_name(node::EzXML.Node)::String
-    return node["na"]
+"replace # with actual number when cp is single code point."
+function get_name(node::EzXML.Node, cp::T)::String where T<:CodePointsSet
+    raw_na = node["na"]
+    # replace '#' with codepoint number to get formal name
+    if isnothing(findfirst('#', raw_na))
+        return raw_na
+    else
+        if typeof(cp) == SingleCodePoint
+            cp_str = format(cp)
+            id = x -> x
+            return split(raw_na, '#') |>
+                x -> zip(x, fill(cp_str, (length(x) - 1, ))) |>
+                Iterators.flatten |>
+                x -> mapreduce(id, *, x)
+        else
+            return raw_na
+        end
+    end
+end
+
+function get_na1(node::EzXML.Node)::String
+    return node["na1"]
 end
 
 # name alias
-# TODO: replace type with enum
-"""
-    struct NameAlias <: Property
-        alias::String
-        type::String
-    end
-
-name alias
-# Fields
-- `alias::String`: name
-- `type::String`: type of alias("abbreviation", "alternative", "control", "correction" or "figment")
-"""
-struct NameAlias <: Property
-    alias::String
-    type::String
-end
-
 function get_namealiases(node::EzXML.Node)::Vector{NameAlias}
     aliases = NameAlias[]
     for child in elements(node)
@@ -125,83 +105,7 @@ function get_block(node::EzXML.Node)::String
     end
 end
 
-"""
-module for GeneralCategories.
-To separate namespace for General Category enum.
-"""
-module GeneralCategories
-
-using EzXML
-
-export GeneralCategory, get_generalcategory
-
-"""
-    @enum GeneralCategory begin
-        Lu # Letter, uppercase
-        Ll # Letter, lowercase
-        Lt # Letter, titlecase
-        Lm # Letter, modifier
-        Lo # Letter, other
-        Mn # Mark, nonspacing
-        Mc # Mark, spacing combining
-        Me # Mark, enclosing
-        Nd # Number, decimal digit
-        Nl # Number, letter
-        No # Number, other
-        Pc # Punctuation, connector
-        Pd # Punctuation, dash
-        Ps # Punctuation, open
-        Pe # Punctuation, close
-        Pi # Punctuation, initial quote
-        Pf # Punctuation, final quote
-        Po # Punctuation, other
-        Sm # Symbol, math
-        Sc # Symbol, currency
-        Sk # Symbol, modifier
-        So # Symbol, other
-        Zs # Separator, space
-        Zl # Separator, line
-        Zp # Separator, paragraph
-        Cc # Other, control
-        Cf # Other, format
-        Cs # Other, surrogate
-        Co # Other, private use
-        Cn # Other, not assigned (including noncharacters)
-    end
-"""
-@enum GeneralCategory begin
-    Lu # Letter, uppercase
-    Ll # Letter, lowercase
-    Lt # Letter, titlecase
-    Lm # Letter, modifier
-    Lo # Letter, other
-    Mn # Mark, nonspacing
-    Mc # Mark, spacing combining
-    Me # Mark, enclosing
-    Nd # Number, decimal digit
-    Nl # Number, letter
-    No # Number, other
-    Pc # Punctuation, connector
-    Pd # Punctuation, dash
-    Ps # Punctuation, open
-    Pe # Punctuation, close
-    Pi # Punctuation, initial quote
-    Pf # Punctuation, final quote
-    Po # Punctuation, other
-    Sm # Symbol, math
-    Sc # Symbol, currency
-    Sk # Symbol, modifier
-    So # Symbol, other
-    Zs # Separator, space
-    Zl # Separator, line
-    Zp # Separator, paragraph
-    Cc # Other, control
-    Cf # Other, format
-    Cs # Other, surrogate
-    Co # Other, private use
-    Cn # Other, not assigned (including noncharacters)
-end
-
+# general category
 function get_generalcategory(node::EzXML.Node)::GeneralCategory
     gc_str = String("")
     try
@@ -209,173 +113,330 @@ function get_generalcategory(node::EzXML.Node)::GeneralCategory
     catch
         error("Failed to get gc(General Category).")
     end
-    if gc_str == "Lu" Lu
-    elseif gc_str == "Ll" Ll
-    elseif gc_str == "Lt" Lt
-    elseif gc_str == "Lm" Lm
-    elseif gc_str == "Lo" Lo
-    elseif gc_str == "Mn" Mn
-    elseif gc_str == "Mc" Mc
-    elseif gc_str == "Me" Me
-    elseif gc_str == "Nd" Nd
-    elseif gc_str == "Nl" Nl
-    elseif gc_str == "No" No
-    elseif gc_str == "Pc" Pc
-    elseif gc_str == "Pd" Pd
-    elseif gc_str == "Ps" Ps
-    elseif gc_str == "Pe" Pe
-    elseif gc_str == "Pi" Pi
-    elseif gc_str == "Pf" Pf
-    elseif gc_str == "Po" Po
-    elseif gc_str == "Sm" Sm
-    elseif gc_str == "Sc" Sc
-    elseif gc_str == "Sk" Sk
-    elseif gc_str == "So" So
-    elseif gc_str == "Zs" Zs
-    elseif gc_str == "Zl" Zl
-    elseif gc_str == "Zp" Zp
-    elseif gc_str == "Cc" Cc
-    elseif gc_str == "Cf" Cf
-    elseif gc_str == "Cs" Cs
-    elseif gc_str == "Co" Co
-    elseif gc_str == "Cn" Cn
+    if gc_str == "Lu" GeneralCategories.Lu
+    elseif gc_str == "Ll" GeneralCategories.Ll
+    elseif gc_str == "Lt" GeneralCategories.Lt
+    elseif gc_str == "Lm" GeneralCategories.Lm
+    elseif gc_str == "Lo" GeneralCategories.Lo
+    elseif gc_str == "Mn" GeneralCategories.Mn
+    elseif gc_str == "Mc" GeneralCategories.Mc
+    elseif gc_str == "Me" GeneralCategories.Me
+    elseif gc_str == "Nd" GeneralCategories.Nd
+    elseif gc_str == "Nl" GeneralCategories.Nl
+    elseif gc_str == "No" GeneralCategories.No
+    elseif gc_str == "Pc" GeneralCategories.Pc
+    elseif gc_str == "Pd" GeneralCategories.Pd
+    elseif gc_str == "Ps" GeneralCategories.Ps
+    elseif gc_str == "Pe" GeneralCategories.Pe
+    elseif gc_str == "Pi" GeneralCategories.Pi
+    elseif gc_str == "Pf" GeneralCategories.Pf
+    elseif gc_str == "Po" GeneralCategories.Po
+    elseif gc_str == "Sm" GeneralCategories.Sm
+    elseif gc_str == "Sc" GeneralCategories.Sc
+    elseif gc_str == "Sk" GeneralCategories.Sk
+    elseif gc_str == "So" GeneralCategories.So
+    elseif gc_str == "Zs" GeneralCategories.Zs
+    elseif gc_str == "Zl" GeneralCategories.Zl
+    elseif gc_str == "Zp" GeneralCategories.Zp
+    elseif gc_str == "Cc" GeneralCategories.Cc
+    elseif gc_str == "Cf" GeneralCategories.Cf
+    elseif gc_str == "Cs" GeneralCategories.Cs
+    elseif gc_str == "Co" GeneralCategories.Co
+    elseif gc_str == "Cn" GeneralCategories.Cn
     else error("No gc matched \n gc = $gc_str")
     end
 end
 
+
+# ccc (Cannonical Combining Class)
+"ccc (Canonical Combining Class). `` 0 \\leq ccc \\leq 240``"
+function get_ccc(node::EzXML.Node)::UInt8
+    try
+        parse(UInt8, node["ccc"], base=10)
+    catch
+        error("Failed to get ccc.")
+    end
 end
 
-using .GeneralCategories
+# bidi
+function get_bidirectional_class(node::EzXML.Node)::BidirectionalClass
+    bc_str = String("")
+    try
+        bc_str = node["bc"]
+    catch
+        error("Failed to get bc(Bidirectional Class).")
+    end
+    if bc_str == "AL" BidirectionalClasses.AL
+    elseif bc_str == "AN" BidirectionalClasses.AN
+    elseif bc_str == "B" BidirectionalClasses.B
+    elseif bc_str == "BN" BidirectionalClasses.BN
+    elseif bc_str == "CS" BidirectionalClasses.CS
+    elseif bc_str == "EN" BidirectionalClasses.EN
+    elseif bc_str == "ES" BidirectionalClasses.ES
+    elseif bc_str == "ET" BidirectionalClasses.ET
+    elseif bc_str == "FSI" BidirectionalClasses.FSI
+    elseif bc_str == "L" BidirectionalClasses.L
+    elseif bc_str == "LRE" BidirectionalClasses.LRE
+    elseif bc_str == "LRI" BidirectionalClasses.LRI
+    elseif bc_str == "LRO" BidirectionalClasses.LRO
+    elseif bc_str == "NSM" BidirectionalClasses.NSM
+    elseif bc_str == "ON" BidirectionalClasses.ON
+    elseif bc_str == "PDF" BidirectionalClasses.PDF
+    elseif bc_str == "PDI" BidirectionalClasses.PDI
+    elseif bc_str == "R" BidirectionalClasses.R
+    elseif bc_str == "RLE" BidirectionalClasses.RLE
+    elseif bc_str == "RLI" BidirectionalClasses.RLI
+    elseif bc_str == "RLO" BidirectionalClasses.RLO
+    elseif bc_str == "S" BidirectionalClasses.S
+    elseif bc_str == "WS" BidirectionalClasses.WS
+    else error("No bc matched: bc = $bc_str")
+    end
+end
 
+"""
+Translate bool property strings described in 2.5 Common attributes in UAX#42.
+"""
+function get_bool(node::EzXML.Node, key::String)::Bool
+    if node[key] == "Y"
+        return true
+    elseif node[key] == "N"
+        return false
+    else
+        error("Bool parse failed: str = $(node[key])")
+    end
+end
 
-# """
-# # Fields
-# - `bc`: bidirectional class (currently as String)
-# - `bidi_M`: mirrored property
-# - `bmg`: mirrored image of the glyph
-# - `bidi_c`: bidi_control
-# - `bpt`: bidi paired bracket type (enum)
-# - `bpb`: bidi paired bracket properties
-# """
-# struct BidirectionalProperties
-#     bc::BidirectionalClass
-#     Bidi_M::Bool
-#     bmg::Union{Nothing, SingleCodePoint}
-#     Bidi_C::Bool
-#     bpt::BidiPairdBracketType
-#     bpb::Union{Nothing, SingleCodePoint}
-# end
+function get_codepointset_or_nothing(node::EzXML.Node, key::String)::Union{Nothing, CodePointsSet}
+    if node[key] == String("")
+        return nothing
+    else
+        if node[key] == "#" # this points itself
+            # TODO: performance issue?
+            return get_codepoint(node)
+        else
+            return parse_singlecodepoint(node[key]) # TODO: no error handling
+        end
+    end
+end
 
-# @enum BidirectionalClass begin
-#     AL; AN;
-#     B; BN;
-#     CS;
-#     EN; ES; ET;
-#     FSI;
-#     L; LRE; LRI; LRO;
-#     NSM;
-#     ON;
-#     PDF; PDI;
-#     R; RLE; RLI; RLO;
-#     S;
-#     WS;
-# end
+function get_BidiPairedBracketType(node::EzXML.Node)::BidiPairedBracketType
+    bpt_str = String("")
+    try
+        bpt_str = node["bpt"]
+    catch
+        error("Failed to get bpt.")
+    end
+    if bpt_str == "o"
+        return BidiPairedBracketTypes.o
+    elseif bpt_str == "c"
+        return BidiPairedBracketTypes.c
+    elseif bpt_str == "n"
+        return BidiPairedBracketTypes.n
+    else
+        error("No bpt matched: bpt = $bpt_str")
+    end
+end
 
-# @enum BidiPairdBracketType o c n
+function get_bidirectional_properties(node::EzXML.Node)::BidirectionalProperties
+    return BidirectionalProperties(
+        get_bidirectional_class(node),
+        get_bool(node, "Bidi_M"),
+        get_codepointset_or_nothing(node, "bmg"),
+        get_bool(node, "Bidi_C"),
+        get_BidiPairedBracketType(node),
+        get_codepointset_or_nothing(node, "bpb")
+    )
+end
 
-# """
-# # Fields
-# - `dt`: decomposition type (enum)
-# - `dm`: mapping (Nothing or Vec of SingleCodePoint)
-# - `CE`: composition exclusion
-# - `Comp_Ex`: full composition exclusion
-# - `NFC_QC`: NFC_Quick_Check
-# - `NFD_QC`: NFD_Quick_Check
-# - `NFKC_QC`: NFKC_Quick_Check
-# - `NFKD_QC`: NFKD_Quick_Check
-# - `XO_NFC`: Expands_On_NFC
-# - `XO_NFD`: Expands_On_NFD
-# - `XO_NFKD`: Expands_On_NFKD
-# - `XO_NFKC`: Expands_On_NFKC
-# - `FC_NFKC`: FC_NFKC_Closure
-# """
-# struct DecompositionProperties
-#     dt::DecompositionType
-#     dm::Union{Nothing, Vector{SingleCodePoint}}
-#     CE::Bool
-#     Comp_Ex::Bool
-#     NFC_QC::YNM
-#     NFD_QC::YN
-#     NFKC_QC::YNM
-#     NFKD_QC::YN
-#     XO_NFC::Bool
-#     XO_NFD::Bool
-#     XO_NFKC::Bool
-#     XO_NFKD::Bool
-#     FC_NFKC::Union{Nothing, Vector{SingleCodePoint}}
-# end
+# decomposition
+function get_DecompositionType(node::EzXML.Node)::DecompositionType
+    dt_str = node["dt"]  # try catch?
+    if dt_str == "can" DecompositionTypes.can
+    elseif dt_str == "com" DecompositionTypes.com
+    elseif dt_str == "enc" DecompositionTypes.enc
+    elseif dt_str == "fin" DecompositionTypes.fin
+    elseif dt_str == "font" DecompositionTypes.font
+    elseif dt_str == "fra" DecompositionTypes.fra
+    elseif dt_str == "init" DecompositionTypes.init
+    elseif dt_str == "iso" DecompositionTypes.iso
+    elseif dt_str == "med" DecompositionTypes.med
+    elseif dt_str == "nar" DecompositionTypes.nar
+    elseif dt_str == "nb" DecompositionTypes.nb
+    elseif dt_str == "sml" DecompositionTypes.sml
+    elseif dt_str == "sqr" DecompositionTypes.sqr
+    elseif dt_str == "sub" DecompositionTypes.sub
+    elseif dt_str == "sup" DecompositionTypes.sup
+    elseif dt_str == "vert" DecompositionTypes.vert
+    elseif dt_str == "wide" DecompositionTypes.wide
+    elseif dt_str == "none" DecompositionTypes.none
+    else error("No dt matched: dt = $dt_str")
+    end
+end
 
-# @enum DecompositionType begin
-#     can; con; enc; fin; font; fra;
-#     init; iso; med; nar; nb; smi;
-#     sqr; sub; sup; vert; wide; none;
-# end
+function get_singlecodepoint_vec_from_str(node::EzXML.Node, key::String)::Union{CodePointsSet, Vector{SingleCodePoint}}
+    str = ""
+    try
+        str = node[key]
+    catch
+        error("Failed to get str.")
+    end
+    if str == "#"
+        return get_codepoint(node)
+    else
+        return split(str, " ") .|> parse_singlecodepoint
+    end
+end
 
-# @enum YNM YMN_Yes YMN_No YMN_Maybe
-# @enum YN YN_Yes YN_No
+function get_QuickCheckProperty(node::EzXML.Node, key::String)::QuickCheckProperty
+    str = ""
+    try
+        str = node[key]
+    catch
+        error("Failed to get str of key $key")
+    end
+    if str == "Y"
+        return QuickCheckProperties.Yes
+    elseif str == "N"
+        return QuickCheckProperties.No
+    elseif str == "M"
+        return QuickCheckProperties.Maybe
+    else
+        error("No qc property matched: $str")
+    end
+end
 
-# """
-# # Fields
-# - `nt`: numeric type (enum)
-# - `nv`: numeric value {"NaN" | xsd:string { pattern = "-?[0-9]+(/[0-9]+)?" }}?
-# """
-# struct NumericProperties
-#     nt::NumericType
-#     nv::String
-# end
+function get_DecompositionProperties(node::EzXML.Node)::DecompositionProperties
+    return DecompositionProperties(
+        get_DecompositionType(node),
+        get_singlecodepoint_vec_from_str(node, "dm"),
+        get_bool(node, "CE"),
+        get_bool(node, "Comp_Ex"),
+        get_QuickCheckProperty(node, "NFC_QC"),
+        get_QuickCheckProperty(node, "NFD_QC"),
+        get_QuickCheckProperty(node, "NFKC_QC"),
+        get_QuickCheckProperty(node, "NFKD_QC"),
+        get_bool(node, "XO_NFC"),
+        get_bool(node, "XO_NFD"),
+        get_bool(node, "XO_NFKC"),
+        get_bool(node, "XO_NFKD"),
+        get_singlecodepoint_vec_from_str(node, "FC_NFKC")
+    )
+end
 
-# @enum NumericType begin
-#     None
-#     De
-#     Di
-#     Nu
-# end
+# numeric properties
+function get_NumericType(node::EzXML.Node)::NumericType
+    nt_str = ""
+    try
+        nt_str = node["nt"]
+    catch
+        error("Failed to get nt.")
+    end
+    if nt_str == "None" NumericTypes.None
+    elseif nt_str == "De" NumericTypes.De
+    elseif nt_str == "Di" NumericTypes.Di
+    elseif nt_str == "Nu" NumericTypes.Nu
+    else error("No nt matched: $nt_str")
+    end
+end
 
-# """
-# # Fields
-# - `jt`: joining class
-# - `jg`: joining group
-# - `Join_C`: Join_Control
-# """
-# struct JoiningProperties
-#     jt::JoiningType
-#     jg::String
-#     Join_C::Bool
-# end
-# @enum JoiningType U C T D L R
+function get_numericvalue(node::EzXML.Node)::Real
+    nv_str = ""
+    try
+        nv_str = node["nv"]
+    catch
+        error("Failed to get nv.")
+    end
+    nv_str |> x -> replace(x, "/" => "//") |> Meta.parse |> eval
+end
 
+function get_NumericProperties(node::EzXML.Node)::NumericProperties
+    return NumericProperties(
+        get_NumericType(node),
+        get_numericvalue(node)
+    )
+end
 
-# "Line_Break property"
-# @enum LineBreakProperties begin
-#     AI; AL;
-#     B2; BA; BB; BK;
-#     CB; CJ; CL; CM; CP; CR;
-#     EB; EM; EX;
-#     GL;
-#     H2; H3; HL; HY;
-#     ID; IN; IS;
-#     JL; JT; JV;
-#     LF;
-#     NL; NS; NU;
-#     OP;
-#     PO; PR;
-#     QU;
-#     RI;
-#     SA; SG; SP; SY;
-#     WJ;
-#     XX;
-#     ZW; ZWJ;
-# end
+# joining properties
+function get_JoiningType(node::EzXML.Node)::JoiningType
+    jt_str = ""
+    try
+        jt_str = node["jt"]
+    catch
+        error("Failed to get jt.")
+    end
+    if jt_str == "U" JoiningTypes.U
+    elseif jt_str == "C" JoiningTypes.C
+    elseif jt_str == "T" JoiningTypes.T
+    elseif jt_str == "D" JoiningTypes.D
+    elseif jt_str == "L" JoiningTypes.L
+    elseif jt_str == "R" JoiningTypes.R
+    else error("No jt matched: $jt_str")
+    end
+end
+
+function get_JoiningProperties(node::EzXML.Node)::JoiningProperties
+    return JoiningProperties(
+        get_JoiningType(node),
+        node["jg"],
+        get_bool(node, "Join_C")
+    )
+end
+
+# linebreak properties
+function get_LineBreakProperty(node::EzXML.Node)::LineBreakProperty
+    lb_str = ""
+    try
+        lb_str = node["lb"]
+    catch
+        error("Failed to get lb.")
+    end
+    if lb_str == "AI" LineBreakProperties.AI
+    elseif lb_str == "AL" LineBreakProperties.AL
+    elseif lb_str == "B2" LineBreakProperties.B2
+    elseif lb_str == "BA" LineBreakProperties.BA
+    elseif lb_str == "BB" LineBreakProperties.BB
+    elseif lb_str == "BK" LineBreakProperties.BK
+    elseif lb_str == "CB" LineBreakProperties.CB
+    elseif lb_str == "CJ" LineBreakProperties.CJ
+    elseif lb_str == "CL" LineBreakProperties.CL
+    elseif lb_str == "CM" LineBreakProperties.CM
+    elseif lb_str == "CP" LineBreakProperties.CP
+    elseif lb_str == "CR" LineBreakProperties.CR
+    elseif lb_str == "EB" LineBreakProperties.EB
+    elseif lb_str == "EM" LineBreakProperties.EM
+    elseif lb_str == "EX" LineBreakProperties.EX
+    elseif lb_str == "GL" LineBreakProperties.GL
+    elseif lb_str == "H2" LineBreakProperties.H2
+    elseif lb_str == "H3" LineBreakProperties.H3
+    elseif lb_str == "HL" LineBreakProperties.HL
+    elseif lb_str == "HY" LineBreakProperties.HY
+    elseif lb_str == "ID" LineBreakProperties.ID
+    elseif lb_str == "IN" LineBreakProperties.IN
+    elseif lb_str == "IS" LineBreakProperties.IS
+    elseif lb_str == "JL" LineBreakProperties.JL
+    elseif lb_str == "JT" LineBreakProperties.JT
+    elseif lb_str == "JV" LineBreakProperties.JV
+    elseif lb_str == "LF" LineBreakProperties.LF
+    elseif lb_str == "NL" LineBreakProperties.NL
+    elseif lb_str == "NS" LineBreakProperties.NS
+    elseif lb_str == "NU" LineBreakProperties.NU
+    elseif lb_str == "OP" LineBreakProperties.OP
+    elseif lb_str == "PO" LineBreakProperties.PO
+    elseif lb_str == "PR" LineBreakProperties.PR
+    elseif lb_str == "QU" LineBreakProperties.QU
+    elseif lb_str == "RI" LineBreakProperties.RI
+    elseif lb_str == "SA" LineBreakProperties.SA
+    elseif lb_str == "SG" LineBreakProperties.SG
+    elseif lb_str == "SP" LineBreakProperties.SP
+    elseif lb_str == "SY" LineBreakProperties.SY
+    elseif lb_str == "WJ" LineBreakProperties.WJ
+    elseif lb_str == "XX" LineBreakProperties.XX
+    elseif lb_str == "ZW" LineBreakProperties.ZW
+    elseif lb_str == "ZWJ" LineBreakProperties.ZWJ
+    else error("No lb matched: $lb_str")
+    end
+end
+
 
 # @enum EastAsianWidth begin
 #     A; F; H; N; Na; W;
@@ -518,94 +579,72 @@ using .GeneralCategories
 #     ExtPict::Bool
 # end
 
-
-"""
-    struct UCDRepertoireNode
-
-UAX#42
-# Fields
-- `type::CodePointType`: `char`, `reserved`, `noncharacter`, `surrogate`
-- `cp::CodePointsSet`: single code point or range with first, last
-- `na::String`: standard name
-- `na1`: 1.0 name
-- `name_alias::Vector{NameAlias}`: zero or more
-    - `alias`: String
-    - `type`: "abbreviation", "alternate", ... etc
-- `blk::String`: block
-- `gc::GeneralCategory`: general category (enum)
-- `ccc`: canonical combining class in decimal
-- `bidi`: bidirectional properties (see `BidirectionalProperties` doc for more details)
-- `decomp`: see DecompositionProperties
-- `numeric`: see NumericProperties
-- `joining`: see JoiningProperties
-- `lb`: see LineBreakProperties
-- `ea`: east asian width
-- `sc`: script
-- `scx`: script extension
-- `isc`: ISO 10646 comment filed
-- `hangul`: see HangulProperties
-- `indic`: see IndicProperties
-"""
-struct UCDRepertoireNode
-    type::CodePointType
-    cp::CodePointsSet
-    # age::String
-    na::String
-    # na1::String
-    name_alias::Vector{NameAlias}
-    blk::String
-    gc::GeneralCategory
-    # ccc::Int16 # Canonical Combining Class in Decimal
-    # bidi::BidirectionalProperties
-    # decomp::DecompositionProperties
-    # numeric::NumericProperties
-    # joining::JoiningProperties
-    # lb::LineBreakProperties
-    # ea::EastAsianWidth
-    # sc::Script
-    # scx::Vector{Script}
-    # isc::String
-    # hangul::HangulProperties
-    # indic::IndicProperties
-    # idpt::IdPtProperties
-    # fungr
-    # bound
-    # ideograph
-    # miscellaneous
-    # unihan
-    # nushu
-    # emoji::EmojiProperties
-end
+##################################################################################
+# main
 
 function get_repertoire_info(node::EzXML.Node)::UCDRepertoireNode
     type = get_codepointtype(node)
     cp = get_codepoint(node)
-    na = get_name(node)
+    age = get_age(node)
+    na = get_name(node, cp)
+    na1 = get_na1(node)
     name_alias = get_namealiases(node)
     blk = get_block(node)
     gc = get_generalcategory(node)
+    ccc = get_ccc(node)
+    bidi = get_bidirectional_properties(node)
+    decomp = get_DecompositionProperties(node)
+    numeric = get_NumericProperties(node)
+    joining = get_JoiningProperties(node)
+    lb = get_LineBreakProperty(node)
 
     return UCDRepertoireNode(
         type,
         cp,
+        age,
         na,
+        na1,
         name_alias,
         blk,
         gc,
+        ccc,
+        bidi,
+        decomp,
+        numeric,
+        joining,
+        lb,
     )
 end
 
-function Base.show(io::IO, r::UCDRepertoireNode)
-    dump(io, r)
-end
 
 function Base.:(==)(a::T, b::T) where T<:UCDRepertoireNode
-    f = fieldnames(T)
-    getfield.(Ref(a), f) == getfield.(Ref(b), f)
+    fv = fieldnames(T)
+    # (map(f->getfield(a, f), fv), map(f->getfield(b, f), fv)) |>
+        # zip |>
+        # x -> map(x->(x[1]==x[2]), x) |>
+        # bv -> reduce(&, bv)
+    # map(
+    #     x->(x[1]==x[2]),
+    #     zip(
+    #         map(f->getfield(a, f), fv),
+    #         map(f->getfield(b, f), fv)
+    #     )
+    # ) |>
+    #     bv -> reduce(&, bv)
+    getfield.(Ref(a), fv) == getfield.(Ref(b), fv)
 end
 
 
 function Base.:(==)(a::T, b::T) where T<:Property
     f = fieldnames(T)
     getfield.(Ref(a), f) == getfield.(Ref(b), f)
+end
+
+function diff_ucd(a::T, b::T) where T<:UCDRepertoireNode
+    fv = fieldnames(T)
+    for f in fv
+        if getfield(a, f) != getfield(b, f)
+            println("mismatched: $f")
+        end
+    end
 end
