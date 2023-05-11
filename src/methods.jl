@@ -38,5 +38,7 @@ Base.show(io::IO, ::MIME"text/plain", ucd::UCDRepertoireNode) = begin
       name: $(name_string)
       alias: $(name_alias_display)
       block: $(ucd.blk)
+      age: $(ucd.age)
+      ccc(canonical combining class):
     """)
 end

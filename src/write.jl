@@ -369,6 +369,7 @@ function write_ucd_coded(;source_path::String = "ucd.all.flat.xml", out_path::St
                 println(io, "blk = [")
             end
             write_repertoire(io, ucd)
+            # show(io, ucd)
             println(io, ",")
         end
         println(io, "]")
