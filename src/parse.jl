@@ -5,8 +5,6 @@ function parse_xml(location = "deps/ucd.all.flat.xml")
     ucd = readxml(location)
     repertoire = elements(elements(ucd.root)[2])
 
-    ucd_repertoire = map(
-        get_repertoire_info,
-        repertoire
-    )
+    ucd_repertoire = map(get_repertoire_info,
+                         repertoire)
 end
